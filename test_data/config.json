@@ -1,0 +1,5 @@
+This is a config file with a big secret: [gocrypt|VT7tB3rAu/eY+q/nnp52DvRqX9mPbEWkkvtsPj0HVadf6F4=|turtle data|82rHDrF+c0QPq/f161hzFw==|icekey.20140901|oP/2gxCycIvKxju0].
+
+We are demonstrating that encrypted data can be stored within a config file and encrypted and decrypted using icecrypt tools.
+
+connection_string: [gocrypt|81PbK6Nu6B2y8U5iVx+O1F95LhfCjinf7THLYJdgubGz+h/9igc=|db connection string|byIAUN1PhzsbYQdFyOjlhg==|icekey.20140901|Ncv5vS3NecB4M2QG]
