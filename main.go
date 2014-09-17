@@ -1,4 +1,4 @@
-package gocrypt
+package main
 
 import (
 	"flag"
@@ -7,6 +7,10 @@ import (
 	"os/user"
 	"path/filepath"
 	"strings"
+	"github.com/ryanbreen/gocrypt/gocrypt"
+
+
+	"io/ioutil"
 )
 
 func main() {
@@ -20,7 +24,7 @@ func main() {
 		&keystore, "keystore", "",
 		"directory in which keys are stored")
 	flag.Parse()
-	if flag.NArg() < 2 {
+	if flag.NArg() < 1 {
 		flag.Usage()
 		return
 	}
@@ -32,10 +36,19 @@ func main() {
 	}
 	fmt.Printf("gocrypt root path: %s%sgocrypt\n", usr.HomeDir, string(os.PathSeparator)) 
 
-	args := flag.Args()
+	//args := flag.Args()
 
-	localPath := fmt.Sprintf("%s%sgocrypt%s", usr.HomeDir, string(os.PathSeparator), args[1])
+	localPath := fmt.Sprintf("%s%sgocrypt", usr.HomeDir, string(os.PathSeparator))
 	fmt.Println("localPath", localPath)
+
+	file, err := ioutil.ReadFile("./test_data/config.json")
+	if (err != nil) {
+		fmt.Println("err", err)
+	}
+
+	fileContents, err := gocrypt.DecryptTags(file, "test_keys")
+
+	fmt.Printf("Got file:\n\n\n%v\n\n\n", string(fileContents))
 
 	return
 }
