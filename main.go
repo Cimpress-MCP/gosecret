@@ -4,7 +4,6 @@ import (
 	"flag"
 	"fmt"
 	"os"
-	"os/user"
 	"path/filepath"
 	"strings"
 	"github.com/ryanbreen/gocrypt/gocrypt"
@@ -21,34 +20,30 @@ func main() {
 		&mode, "mode", "encrypt",
 		"mode of operation, either keygen, encrypt, or decrypt; defaults to encrypt")
 	flag.StringVar(
-		&keystore, "keystore", "",
+		&keystore, "keystore", "/keys/",
 		"directory in which keys are stored")
 	flag.Parse()
-	if flag.NArg() < 1 {
+	if flag.NArg() != 1 {
 		flag.Usage()
 		return
 	}
 
-	usr, err := user.Current()
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "Error: %s\n", err)
-		return
-	}
-	fmt.Printf("gocrypt root path: %s%sgocrypt\n", usr.HomeDir, string(os.PathSeparator)) 
-
-	//args := flag.Args()
-
-	localPath := fmt.Sprintf("%s%sgocrypt", usr.HomeDir, string(os.PathSeparator))
-	fmt.Println("localPath", localPath)
-
-	file, err := ioutil.ReadFile("./test_data/config.json")
+	file, err := ioutil.ReadFile(flag.Args()[0])
 	if (err != nil) {
 		fmt.Println("err", err)
 	}
 
-	fileContents, err := gocrypt.DecryptTags(file, "test_keys")
-
-	fmt.Printf("Got file:\n\n\n%v\n\n\n", string(fileContents))
+	if (mode == "encrypt") {
+		fmt.Println("Encryption not yet supported")
+		return
+	} else if (mode == "decrypt") {
+		fileContents, err := gocrypt.DecryptTags(file, "test_keys")
+		if (err != nil) {
+			fmt.Println("err", err)
+			return
+		}
+		fmt.Printf("Got file:\n\n\n%v\n\n\n", string(fileContents))
+	}
 
 	return
 }
