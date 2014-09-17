@@ -1,4 +1,4 @@
-package icecrypt
+package gocrypt
 
 import (
 	"bytes"
