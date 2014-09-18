@@ -14,7 +14,7 @@ import (
 func main() {
 	var mode string
 	var keystore string
-	var key string
+	var keypath string
 	flag.Usage = usage
 	flag.StringVar(
 		&mode, "mode", "encrypt",
@@ -23,7 +23,7 @@ func main() {
 		&keystore, "keystore", "/keys/",
 		"directory in which keys are stored")
 	flag.StringVar(
-		&key, "key", "",
+		&keypath, "key", "",
 		"path to a key file to use for encryption")
 	flag.Parse()
 	if flag.NArg() != 1 {
@@ -34,22 +34,37 @@ func main() {
 	fileName := flag.Args()[0]
 
 	if (mode == "encrypt") {
-		if (key == "") {
+		if (keypath == "") {
 			fmt.Println("A -key must be provided for encryption")
 			return
 		}
 
 		file, err := ioutil.ReadFile(fileName)
 		if (err != nil) {
-			fmt.Println("unable to read file for encryption", err)
+			fmt.Println("Unable to read file for encryption", err)
 			return
 		}
 
-		fileContents, err := gocrypt.EncryptTags(file, key)
+		keyfile, err := ioutil.ReadFile(keypath)
+		if (err != nil) {
+			fmt.Println("Unable to read key file", err)
+			return
+		}
+
+		key, err := base64.StdEncoding.DecodeString(string(keyfile))
+		if (err != nil) {
+			fmt.Println("Unable to decode key", err)
+			return
+		}
+
+		keyname := filepath.Base(keypath)
+
+		fileContents, err := gocrypt.EncryptTags(file, keyname, []byte(key))
 		if (err != nil) {
 			fmt.Println("encryption failed", err)
 			return
 		}
+
 		fmt.Printf("Got file:\n%v\n", string(fileContents))
 	} else if (mode == "decrypt") {
 		file, err := ioutil.ReadFile(fileName)

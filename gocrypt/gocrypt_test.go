@@ -38,7 +38,7 @@ func TestIcecrypt(t *testing.T) {
 
 func TestDecryptFile(t *testing.T) {
 
-	file, err := ioutil.ReadFile(path.Join("../test_data", "config.json"))
+	file, err := ioutil.ReadFile(path.Join("./test_data", "config.json"))
 	if (err != nil) {
 		t.Fatal(err)
 	}
