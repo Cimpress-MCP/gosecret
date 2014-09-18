@@ -11,8 +11,8 @@ import (
 
 func TestIcecrypt(t *testing.T) {
 
-	key := createKey();
-	iv := createIV()
+	key := CreateKey();
+	iv := CreateIV()
 	fmt.Println("key length is", len(key))
 	fmt.Println("Got key", base64.StdEncoding.EncodeToString(key))
 
@@ -38,7 +38,7 @@ func TestIcecrypt(t *testing.T) {
 
 func TestDecryptFile(t *testing.T) {
 
-	file, err := ioutil.ReadFile(path.Join("test_data", "config.json"))
+	file, err := ioutil.ReadFile(path.Join("../test_data", "config.json"))
 	if (err != nil) {
 		t.Fatal(err)
 	}

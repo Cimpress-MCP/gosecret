@@ -1,6 +1,6 @@
 <config>
-   <db connection_string="[gocrypt|x8w5DEFPh5UaTfKei8iYxsSztZW7WiIm39N2|connection string|620/UW2oRplWz3kH6wWlUQ==|icekey.20140901|seEcDMcHUkjIybOD]">artifactory</db>
+   <db connection_string="[gocrypt|sql://fake:creds@127.0.0.1/|sql connection string].">artifactory</db>
    <user id="test_user">
-	<password>[gocrypt|AnfkpD/E3Q==|password|1lQPTlpdmVlxht2B90p//A==|icekey.20140901|zuyRMxwiknty6qKQ]</password>
+	<password>[gocrypt|hunter5|worst password ever]</password>
    </user>
 </config>

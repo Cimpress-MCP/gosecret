@@ -21,11 +21,11 @@ func createRandomBytes(length int) []byte {
 	return random_bytes
 }
 
-func createKey() []byte {
+func CreateKey() []byte {
 	return createRandomBytes(32)
 }
 
-func createIV() []byte {
+func CreateIV() []byte {
 	return createRandomBytes(12)
 }
 
@@ -58,7 +58,7 @@ func decrypt(ciphertext []byte, key []byte, iv []byte, ad []byte) ([]byte, error
 	return aesgcm.Open(nil, iv, ciphertext, ad)
 }
 
-func EncryptTags(buffer []byte, key []byte) ([]byte, error) {
+func EncryptTags(buffer []byte, keyroot string) ([]byte, error) {
 
 	if (!utf8.Valid(buffer)) {
 		return nil, errors.New("File is not valid UTF-8")
