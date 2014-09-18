@@ -1,0 +1,6 @@
+This is a config file with a big secret: [gocrypt|bnP0HdeFVTr/3BcOhCSS/TlIj6phYndxvRLTy0mRDx74J8C/yYwkLVhaERbLTsVHY/hd|ice20140917|sJUmLXtZhAE3Bx7E|turtle data].
+
+We are demonstrating that encrypted data can be stored within a config file and encrypted and decrypted using icecrypt tools.
+
+connection_string: [gocrypt|TrMwPzhVNMyk8xmj7CmeRo/AoAtT6Y9ok/B62i380TfSvDQWEeq+X+svnlo=|ice20140917|qullKuXvSBhTa9ti|mongo db].
+

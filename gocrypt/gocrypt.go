@@ -8,6 +8,8 @@ import (
 	"encoding/base64"
 	"errors"
 	"fmt"
+	"io/ioutil"
+	"path/filepath"
 	"regexp"
 	"strings"
 	"unicode/utf8"
@@ -107,12 +109,48 @@ func DecryptTags(buffer []byte, keyroot string) ([]byte, error) {
 	}
 
 	match := gocryptRegex.Match(buffer)
-	fmt.Println("Match?", match)
 
 	if (match) {
-		matches := gocryptRegex.FindAll(buffer, -1)
+		matches := gocryptRegex.FindAllSubmatch(buffer, -1)
 		for _, match := range matches {
-			fmt.Println("Match:", string(match))
+			// The string we need is in the first capture group
+			matchStr := string(match[1])
+			fmt.Println("match:", matchStr)
+			parts := strings.Split(matchStr, "|")
+			if (len(parts) < 5) {
+				fmt.Printf("Block %s not correctly encrypted.  Skipping.\n", match)	
+			} else {
+				ct, err := base64.StdEncoding.DecodeString(parts[1])
+				if (err != nil) {
+					fmt.Println("Unable to decode ciphertext", parts[1], err)
+					return nil, err
+				}
+
+				iv, err := base64.StdEncoding.DecodeString(parts[3])
+				if (err != nil) {
+					fmt.Println("Unable to decode IV", err)
+					return nil, err
+				}
+
+				keyfile, err := ioutil.ReadFile(filepath.Join(keyroot, parts[2]))
+				if (err != nil) {
+					fmt.Println("Unable to read file for encryption", err)
+					return nil, err
+				}
+
+				key, err := base64.StdEncoding.DecodeString(string(keyfile))
+				if (err != nil) {
+					fmt.Println("Unable to decode key", err)
+					return nil, err
+				}
+
+				plainText, err := decrypt(ct, key, iv, []byte(parts[4]))
+				if (err != nil) {
+					return nil, err
+				}
+
+				buffer = bytes.Replace(buffer, match[0], []byte(plainText), 1)
+			}
 		}
 	}
 
