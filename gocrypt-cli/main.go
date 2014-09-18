@@ -8,7 +8,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
-	"github.com/ryanbreen/gocrypt/gocrypt"
+	"github.com/ryanbreen/gocrypt"
 )
 
 func main() {
