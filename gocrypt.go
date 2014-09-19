@@ -63,7 +63,7 @@ func decrypt(ciphertext []byte, key []byte, iv []byte, ad []byte) ([]byte, error
 	return aesgcm.Open(nil, iv, ciphertext, ad)
 }
 
-// DecryptTags looks for any tagged data of the form [gocrypt|plaintext|authtext] in the input content byte
+// EncryptTags looks for any tagged data of the form [gocrypt|authtext|plaintext] in the input content byte
 // array and replaces each with an encrypted gocrypt tag.  Note that the input content must be valid UTF-8.
 // The second parameter is the name of the keyfile to use for encrypting all tags in the content, and the
 // third parameter is the 256-bit key itself.
@@ -86,16 +86,16 @@ func EncryptTags(content []byte, keyname string, key []byte) ([]byte, error) {
 				fmt.Printf("Block %s already encrypted.  Skipping.\n", match)	
 			} else {
 				iv := CreateIV()
-				cipherText, err := encrypt([]byte(parts[1]), key, iv, []byte(parts[2]))
+				cipherText, err := encrypt([]byte(parts[2]), key, iv, []byte(parts[1]))
 				if (err != nil) {
 					return nil, err
 				}
 
 				replacement := fmt.Sprintf("[gocrypt|%s|%s|%s|%s]",
+					parts[1],
 					base64.StdEncoding.EncodeToString(cipherText),
-					keyname,
 					base64.StdEncoding.EncodeToString(iv),
-					parts[2])
+					keyname)
 				fmt.Println("Encrypted version:", replacement)
 
 				content = bytes.Replace(content, match[0], []byte(replacement), 1)
@@ -107,7 +107,7 @@ func EncryptTags(content []byte, keyname string, key []byte) ([]byte, error) {
 	return content, nil;
 }
 
-// DecryptTags looks for any tagged data of the form [gocrypt|ciphertext|keyname|initvector|authtext] in the
+// DecryptTags looks for any tagged data of the form [gocrypt|authtext|ciphertext|initvector|keyname] in the
 // input content byte array and replaces each with a decrypted version of the ciphertext.  Note that the
 // input content must be valid UTF-8.  The second parameter is the path to the directory in which keyfiles
 // live.  For each |keyname| in a gocrypt block, there must be a corresponding file of the same name in the
@@ -131,9 +131,9 @@ func DecryptTags(content []byte, keyroot string) ([]byte, error) {
 			if (len(parts) < 5) {
 				fmt.Printf("Block %s not correctly encrypted.  Skipping.\n", match)	
 			} else {
-				ct, err := base64.StdEncoding.DecodeString(parts[1])
+				ct, err := base64.StdEncoding.DecodeString(parts[2])
 				if (err != nil) {
-					fmt.Println("Unable to decode ciphertext", parts[1], err)
+					fmt.Println("Unable to decode ciphertext", parts[2], err)
 					return nil, err
 				}
 
@@ -143,7 +143,7 @@ func DecryptTags(content []byte, keyroot string) ([]byte, error) {
 					return nil, err
 				}
 
-				keyfile, err := ioutil.ReadFile(filepath.Join(keyroot, parts[2]))
+				keyfile, err := ioutil.ReadFile(filepath.Join(keyroot, parts[4]))
 				if (err != nil) {
 					fmt.Println("Unable to read file for decryption", err)
 					return nil, err
@@ -155,7 +155,7 @@ func DecryptTags(content []byte, keyroot string) ([]byte, error) {
 					return nil, err
 				}
 
-				plainText, err := decrypt(ct, key, iv, []byte(parts[4]))
+				plainText, err := decrypt(ct, key, iv, []byte(parts[1]))
 				if (err != nil) {
 					return nil, err
 				}
