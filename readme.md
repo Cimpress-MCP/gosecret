@@ -4,7 +4,7 @@ This repository provides the `gocrypt` package for encrypting and decrypting all
 
 ##### Documentation
 
-The full documentation will be available on Godoc once I write it and figure out how to publish it.
+The full documentation is available on [godoc](http://godoc.org/github.com/ryanbreen/gocrypt).
 
 ##### Caveats
 
