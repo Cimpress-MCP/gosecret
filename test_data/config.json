@@ -1,5 +1,5 @@
-This is a config file with a big secret: [gocrypt|I like turtles.  Don't tell anyone.|turtle data].
+This is a config file with a big secret: [gocrypt|turtle data|I like turtles.  Don't tell anyone.].
 
-We are demonstrating that encrypted data can be stored within a config file and encrypted and decrypted using icecrypt tools.
+We are demonstrating that encrypted data can be stored within a config file and encrypted and decrypted using gocrypt tools.
 
-connection_string: [gocrypt|mongo://fake:creds@127.0.0.1|mongo db].
+connection_string: [gocrypt|mongo db|mongo://fake:creds@127.0.0.1].

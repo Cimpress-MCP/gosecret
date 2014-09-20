@@ -9,7 +9,7 @@ import (
 	"testing"
 )
 
-func TestEncryptFile(t *testing.T) {
+func TestEncrypt(t *testing.T) {
 
 	key := CreateKey();
 	iv := CreateIV()
@@ -38,16 +38,25 @@ func TestEncryptFile(t *testing.T) {
 
 func TestDecryptFile(t *testing.T) {
 
-	file, err := ioutil.ReadFile(path.Join("./test_data", "config.json"))
+	plaintextFile, err := ioutil.ReadFile(path.Join("test_data", "config_plaintext.json"))
+	if (err != nil) {
+		t.Fatal(err)
+	}
+
+	file, err := ioutil.ReadFile(path.Join("test_data", "config_enc.json"))
 	if (err != nil) {
 		t.Fatal(err)
 	}
 
 	fileContents, err := DecryptTags(file, "test_keys")
 
-	fmt.Printf("Got file:\n\n\n%v\n\n\n", string(fileContents))
+	fmt.Printf("Got file:\n%v\n", string(fileContents))
 
 	if err != nil {
 		t.Fatal(err)
+	}
+
+	if !bytes.Equal(plaintextFile, fileContents) {
+		t.Error("Decrypt failed")
 	}
 }
