@@ -11,7 +11,7 @@ import (
 
 func TestEncrypt(t *testing.T) {
 
-	key := CreateKey();
+	key := CreateKey()
 	iv := CreateIV()
 	fmt.Println("key length is", len(key))
 	fmt.Println("Got key", base64.StdEncoding.EncodeToString(key))
@@ -20,7 +20,7 @@ func TestEncrypt(t *testing.T) {
 	auth_data := []byte("scrt")
 
 	cipher_text, err := encrypt(plaintext, key, iv, auth_data)
-	if (err != nil) {
+	if err != nil {
 		t.Fatal(err)
 	}
 
@@ -39,12 +39,12 @@ func TestEncrypt(t *testing.T) {
 func TestDecryptFile(t *testing.T) {
 
 	plaintextFile, err := ioutil.ReadFile(path.Join("test_data", "config_plaintext.json"))
-	if (err != nil) {
+	if err != nil {
 		t.Fatal(err)
 	}
 
 	file, err := ioutil.ReadFile(path.Join("test_data", "config_enc.json"))
-	if (err != nil) {
+	if err != nil {
 		t.Fatal(err)
 	}
 

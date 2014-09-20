@@ -48,7 +48,7 @@ func createCipher(key []byte) (cipher.AEAD, error) {
 
 func encrypt(plaintext []byte, key []byte, iv []byte, ad []byte) ([]byte, error) {
 	aesgcm, err := createCipher(key)
-	if (err != nil) {
+	if err != nil {
 		return nil, err
 	}
 	return aesgcm.Seal(nil, iv, plaintext, ad), nil
@@ -56,7 +56,7 @@ func encrypt(plaintext []byte, key []byte, iv []byte, ad []byte) ([]byte, error)
 
 func decrypt(ciphertext []byte, key []byte, iv []byte, ad []byte) ([]byte, error) {
 	aesgcm, err := createCipher(key)
-	if (err != nil) {
+	if err != nil {
 		return nil, err
 	}
 
@@ -70,25 +70,25 @@ func decrypt(ciphertext []byte, key []byte, iv []byte, ad []byte) ([]byte, error
 // EncryptTags returns a []byte with all unencrypted [gosecret] blocks replaced by encrypted gosecret tags.
 func EncryptTags(content []byte, keyname string, key []byte) ([]byte, error) {
 
-	if (!utf8.Valid(content)) {
+	if !utf8.Valid(content) {
 		return nil, errors.New("File is not valid UTF-8")
 	}
 
 	match := gosecretRegex.Match(content)
-	
-	if (match) {
+
+	if match {
 		matches := gosecretRegex.FindAllSubmatch(content, -1)
 		for _, match := range matches {
 			// The string we need is in the first capture group
 			matchStr := string(match[1])
 			parts := strings.Split(matchStr, "|")
-			if (len(parts) > 3) {
+			if len(parts) > 3 {
 				// Block is already encrypted.  Skipping.
 				// TODO: Support optional reencryption.
 			} else {
 				iv := CreateIV()
 				cipherText, err := encrypt([]byte(parts[2]), key, iv, []byte(parts[1]))
-				if (err != nil) {
+				if err != nil {
 					return nil, err
 				}
 
@@ -104,7 +104,7 @@ func EncryptTags(content []byte, keyname string, key []byte) ([]byte, error) {
 		}
 	}
 
-	return content, nil;
+	return content, nil
 }
 
 // DecryptTags looks for any tagged data of the form [gosecret|authtext|ciphertext|initvector|keyname] in the
@@ -115,47 +115,47 @@ func EncryptTags(content []byte, keyname string, key []byte) ([]byte, error) {
 // DecryptTags returns a []byte with all [gosecret] blocks replaced by plaintext.
 func DecryptTags(content []byte, keyroot string) ([]byte, error) {
 
-	if (!utf8.Valid(content)) {
+	if !utf8.Valid(content) {
 		return nil, errors.New("File is not valid UTF-8")
 	}
 
 	match := gosecretRegex.Match(content)
 
-	if (match) {
+	if match {
 		matches := gosecretRegex.FindAllSubmatch(content, -1)
 		for _, match := range matches {
 			// The string we need is in the first capture group
 			matchStr := string(match[1])
 			parts := strings.Split(matchStr, "|")
-			if (len(parts) < 5) {
+			if len(parts) < 5 {
 				// Block is not encrypted.  Skipping.
 			} else {
 				ct, err := base64.StdEncoding.DecodeString(parts[2])
-				if (err != nil) {
+				if err != nil {
 					fmt.Println("Unable to decode ciphertext", parts[2], err)
 					return nil, err
 				}
 
 				iv, err := base64.StdEncoding.DecodeString(parts[3])
-				if (err != nil) {
+				if err != nil {
 					fmt.Println("Unable to decode IV", err)
 					return nil, err
 				}
 
 				keyfile, err := ioutil.ReadFile(filepath.Join(keyroot, parts[4]))
-				if (err != nil) {
+				if err != nil {
 					fmt.Println("Unable to read file for decryption", err)
 					return nil, err
 				}
 
 				key, err := base64.StdEncoding.DecodeString(string(keyfile))
-				if (err != nil) {
+				if err != nil {
 					fmt.Println("Unable to decode key", err)
 					return nil, err
 				}
 
 				plainText, err := decrypt(ct, key, iv, []byte(parts[1]))
-				if (err != nil) {
+				if err != nil {
 					return nil, err
 				}
 
@@ -164,6 +164,5 @@ func DecryptTags(content []byte, keyroot string) ([]byte, error) {
 		}
 	}
 
-	return content, nil;
+	return content, nil
 }
-
