@@ -8,7 +8,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
-	"github.com/ryanbreen/gocrypt"
+	"github.com/ryanbreen/gosecret"
 )
 
 func main() {
@@ -59,27 +59,27 @@ func main() {
 
 		keyname := filepath.Base(keypath)
 
-		fileContents, err := gocrypt.EncryptTags(file, keyname, []byte(key))
+		fileContents, err := gosecret.EncryptTags(file, keyname, []byte(key))
 		if (err != nil) {
 			fmt.Println("encryption failed", err)
 			return
 		}
 
-		fmt.Printf("Got file:\n%v\n", string(fileContents))
+		fmt.Printf(string(fileContents))
 	} else if (mode == "decrypt") {
 		file, err := ioutil.ReadFile(fileName)
 		if (err != nil) {
 			fmt.Println("err", err)
 		}
 
-		fileContents, err := gocrypt.DecryptTags(file, keystore)
+		fileContents, err := gosecret.DecryptTags(file, keystore)
 		if (err != nil) {
 			fmt.Println("err", err)
 			return
 		}
-		fmt.Printf("Got file:\n%v\n", string(fileContents))
+		fmt.Printf(string(fileContents))
 	} else if (mode == "keygen") {
-		ioutil.WriteFile(fileName, []byte(base64.StdEncoding.EncodeToString(gocrypt.CreateKey())), 0666)
+		ioutil.WriteFile(fileName, []byte(base64.StdEncoding.EncodeToString(gosecret.CreateKey())), 0666)
 	} else {
 		fmt.Println("Unknown mode", mode)
 	}
@@ -96,7 +96,7 @@ func usage() {
 const helpText = `
 Usage: %s [options] file
 
-  Encrypt or decrypt file using gocrypt.
+  Encrypt or decrypt file using gosecret.
 
 Options:
 `

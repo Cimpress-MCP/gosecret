@@ -1,5 +1,5 @@
-This is a config file with a big secret: [gocrypt|turtle data|Qym2R0t/82Qh3EydDIAf0hw+xwFKvAVKLhhte4IAADJIqf/+R0i91ye9Y53+zr0Cdl9w|PBOY8yh8sBAb5yo8|myteamkey-2014-09-19].
+This is a config file with a big secret: [gosecret|turtle data|B1oX1+WtGF/yfIoYRAVUGmTkn5OBlGpdjtCtywclWYqUAeAEEO2T4JuO6tcdoaJRIOAL|t7+s82brBQ0U5bMd|myteamkey-2014-09-19].
 
-We are demonstrating that encrypted data can be stored within a config file and encrypted and decrypted using gocrypt tools.
+We are demonstrating that encrypted data can be stored within a config file and encrypted and decrypted using gosecret tools.
 
-connection_string: [gocrypt|mongo db|Z1RU+mnf1I6vfU6pG3Ylru59mPVDRSFbX4IuOFTED4jcAJEnovyW71SwQlA=|/Vn08xIpFWH0P3Vw|myteamkey-2014-09-19].
+connection_string: [gosecret|mongo db|ZtRQbt6oLNMpuERuMKsGUd1z7jD22vfJQVHaINuTt6N/HAGBlbgHPD1pLbY=|kLTeR8rWW/sJOWcq|myteamkey-2014-09-19].

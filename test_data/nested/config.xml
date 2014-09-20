@@ -1,6 +1,6 @@
 <config>
-   <db connection_string="[gocrypt|sql://fake:creds@127.0.0.1/|sql connection string].">artifactory</db>
+   <db connection_string="[gosecret|sql://fake:creds@127.0.0.1/|sql connection string].">artifactory</db>
    <user id="test_user">
-	<password>[gocrypt|hunter5|worst password ever]</password>
+	<password>[gosecret|hunter5|worst password ever]</password>
    </user>
 </config>

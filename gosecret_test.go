@@ -1,4 +1,4 @@
-package gocrypt
+package gosecret
 
 import (
 	"bytes"
@@ -50,7 +50,7 @@ func TestDecryptFile(t *testing.T) {
 
 	fileContents, err := DecryptTags(file, "test_keys")
 
-	fmt.Printf("Got file:\n%v\n", string(fileContents))
+	fmt.Printf(string(fileContents))
 
 	if err != nil {
 		t.Fatal(err)

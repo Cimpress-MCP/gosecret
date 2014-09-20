@@ -1,5 +1,5 @@
 This is a config file with a big secret: I like turtles.  Don't tell anyone..
 
-We are demonstrating that encrypted data can be stored within a config file and encrypted and decrypted using gocrypt tools.
+We are demonstrating that encrypted data can be stored within a config file and encrypted and decrypted using gosecret tools.
 
 connection_string: mongo://fake:creds@127.0.0.1.
