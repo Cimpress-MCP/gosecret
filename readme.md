@@ -21,8 +21,6 @@ Install the `gocrypt` package with `go install` from the main directory, and ins
 
 Imagine that you have a file called `config.json`, and this file contains some secure data, such as DB connection strings, but that most data can be world readable.  You would use `gocrypt` to encrypt the private fields with a specific key.  You can then check that version of `config.json` into git and move it around the network using `git2consul`.  `fsconsul` will detect the encrypted portion of the file and automatically decrypt it provided that the encryption key is present on the target machine.
 
-###### Creating Tags
-
 To signify that you wish a portion of a file to be encrypted, you need to denote that portion of the file with a tag.  Imagine that your file contains this bit of JSON:
 
     { 'dbpassword': 'kadjf454nkklz' }
@@ -34,8 +32,8 @@ To have gocrypt encrypt just the password, you might create a tag like this:
 The tags are, in order:
 
 1. The gocrypt header
-2. An auth data string.  Note that this can be any string (as long as it doesn't contain the pipe character, `|`).  This tag is authenticated as part of the ciphertext.  It's helpful if this tag has some semantic meaning describing the encrypted data.
-3. The plaintext we wish to decrypt.
+2. An auth data string.  Note that this can be any string (as long as it doesn't contain the pipe character, `|`).  This tag hashed and included as part of the ciphertext.  It's helpful if this tag has some semantic meaning describing the encrypted data.
+3. The plaintext we wish to encrypt.
 
 With this tag in place, you can encrypt the file via `gocrypt-cli`.  The result will yield something that looks like this, assuming you encrypted it with a keyfile named `myteamkey-2014-09-19`: 
 
@@ -46,12 +44,14 @@ The tags are, in order:
 1. The gocrypt header
 2. The auth data string 
 3. The ciphertext, in Base64
-4. The initialization vector
+4. The initialization vector, in Base64
 5. The key name
 
-When this is decrypted by a system that contains key `myteamkey-2014-09-19`, the key and initialization vector are used to both authenticate and (if authentic) decrypt the ciphertext back to plaintext.  This will result in the encrypted tag being replaced by the plaintext, returning us to our original form:
+When this is decrypted by a system that contains key `myteamkey-2014-09-19`, the key and initialization vector are used to both authenticate the auth data string and (if authentic) decrypt the ciphertext back to plaintext.  This will result in the encrypted tag being replaced by the plaintext, returning us to our original form:
 
     { 'dbpassword': 'kadjf454nkklz' }
+
+Note that the auth data string is not private data.  It is hashed and used as part of the ciphertext such that decryption will fail if any of auth data, initialization vector, and key are incorrect for a specific piece of ciphertext.  This increases the security of the encryption algorithm by obviating attacks that seek to learn about the key and initialization vector through repeated decryption attempts.
 
 ##### The CLI
 
