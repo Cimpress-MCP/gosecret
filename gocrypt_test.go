@@ -9,7 +9,7 @@ import (
 	"testing"
 )
 
-func TestIcecrypt(t *testing.T) {
+func TestEncryptFile(t *testing.T) {
 
 	key := CreateKey();
 	iv := CreateIV()
