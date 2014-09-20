@@ -2,6 +2,8 @@
 
 This repository provides the `gocrypt` package for encrypting and decrypting all or part of a `[]byte` using AES-256-GCM.  gocrypt was written to work with tools such as [git2consul](https://github.com/ryanbreen/git2consul), [fsconsul](https://github.com/ryanbreen/fsconsul), and [envconsul](https://github.com/hashicorp/envconsul), providing a mechanism for storing and moving secure secrets around the network and decrypting them on target systems via a previously installed key.
 
+For details on the algorithm, [the Wikipedia article on Galois/Counter Mode](https://en.wikipedia.org/wiki/Galois/Counter_Mode) is helpful.
+
 ##### Documentation
 
 The full documentation is available on [godoc](http://godoc.org/github.com/ryanbreen/gocrypt).
@@ -13,10 +15,43 @@ Install the `gocrypt` package with `go install` from the main directory, and ins
 ##### Caveats
 
 * Security in gocrypt is predicated upon the security of the target machines.  gocrypt uses symmetric encryption, so any user with access to the key can decrypt all secrets encrypted with that key.
+* gocrypt is built on the assumption that only part of any given file should be encrypted: in most configuration files, there are few fields that need to be encrypted and the rest can safely be left as plaintext.  gocrypt can be used in a mode where the entire file is a single encrypted tag, but you should examine whether there's a good reason to do so.
 
 ##### How It Works
 
 Imagine that you have a file called `config.json`, and this file contains some secure data, such as DB connection strings, but that most data can be world readable.  You would use `gocrypt` to encrypt the private fields with a specific key.  You can then check that version of `config.json` into git and move it around the network using `git2consul`.  `fsconsul` will detect the encrypted portion of the file and automatically decrypt it provided that the encryption key is present on the target machine.
+
+###### Creating Tags
+
+To signify that you wish a portion of a file to be encrypted, you need to denote that portion of the file with a tag.  Imagine that your file contains this bit of JSON:
+
+    { 'dbpassword': 'kadjf454nkklz' }
+
+To have gocrypt encrypt just the password, you might create a tag like this:
+
+    { 'dbpassword': '[gocrypt|my mongo db password|kadjf454nkklz]' }
+
+The tags are, in order:
+
+1. The gocrypt header
+2. An auth data string.  Note that this can be any string (as long as it doesn't contain the pipe character, `|`).  This tag is authenticated as part of the ciphertext.  It's helpful if this tag has some semantic meaning describing the encrypted data.
+3. The plaintext we wish to decrypt.
+
+With this tag in place, you can encrypt the file via `gocrypt-cli`.  The result will yield something that looks like this, assuming you encrypted it with a keyfile named `myteamkey-2014-09-19`: 
+
+    { 'dbpassword': '[gocrypt|my mongo db password|TtRotEctptR1LfA5tSn3kAtzjyWjAp+dMOHe6lc=|FJA7qz+dUdubwv9G|myteamkey-2014-09-19]' }
+
+The tags are, in order:
+
+1. The gocrypt header
+2. The auth data string 
+3. The ciphertext, in Base64
+4. The initialization vector
+5. The key name
+
+When this is decrypted by a system that contains key `myteamkey-2014-09-19`, the key and initialization vector are used to both authenticate and (if authentic) decrypt the ciphertext back to plaintext.  This will result in the encrypted tag being replaced by the plaintext, returning us to our original form:
+
+    { 'dbpassword': 'kadjf454nkklz' }
 
 ##### The CLI
 
