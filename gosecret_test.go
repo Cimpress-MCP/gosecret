@@ -108,7 +108,7 @@ func TestKeyRotation(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	
+
 	os.Remove(path.Join("test_keys", "test_key_2"))
 
 	if !bytes.Equal(plaintextFile, decrypted) {
