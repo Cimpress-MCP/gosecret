@@ -49,7 +49,7 @@ func main() {
 			return
 		}
 
-		fileContents, err := gosecret.EncryptTags(file, keystore, keyname, rotate)
+		fileContents, err := gosecret.EncryptTags(file, keyname, keystore, rotate)
 		if (err != nil) {
 			fmt.Println("encryption failed", err)
 			return
