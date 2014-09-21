@@ -100,6 +100,20 @@ func decryptTag(tagParts []string, keyroot string) ([]byte, error) {
 	return plaintext, nil
 }
 
+func encryptTag(tagParts []string, key []byte, keyname string) (string, error) {
+	iv := CreateIV()
+	cipherText, err := encrypt([]byte(tagParts[2]), key, iv, []byte(tagParts[1]))
+	if err != nil {
+		return "", err
+	}
+
+	return fmt.Sprintf("[gosecret|%s|%s|%s|%s]",
+		tagParts[1],
+		base64.StdEncoding.EncodeToString(cipherText),
+		base64.StdEncoding.EncodeToString(iv),
+		keyname), nil
+}
+
 // EncryptTags looks for any tagged data of the form [gosecret|authtext|plaintext] in the input content byte
 // array and replaces each with an encrypted gosecret tag.  Note that the input content must be valid UTF-8.
 // The second parameter is the name of the keyfile to use for encrypting all tags in the content, and the
@@ -135,35 +149,22 @@ func EncryptTags(content []byte, keyname, keyroot string, rotate bool) ([]byte, 
 						return nil, err
 					}
 
-					iv := CreateIV()
-					cipherText, err := encrypt(plaintext, key, iv, []byte(parts[1]))
-
+					parts[2] = string(plaintext)
+			
+					replacement, err := encryptTag(parts, key, keyname)
 					if err != nil {
+						fmt.Println("Failed to encrypt tag", err)
 						return nil, err
 					}
-
-					replacement := fmt.Sprintf("[gosecret|%s|%s|%s|%s]",
-						parts[1],
-						base64.StdEncoding.EncodeToString(cipherText),
-						base64.StdEncoding.EncodeToString(iv),
-						keyname)
-
 					content = bytes.Replace(content, match[0], []byte(replacement), 1)
 				}
 
 			} else {
-				iv := CreateIV()
-				cipherText, err := encrypt([]byte(parts[2]), key, iv, []byte(parts[1]))
+				replacement, err := encryptTag(parts, key, keyname)
 				if err != nil {
+					fmt.Println("Failed to encrypt tag", err)
 					return nil, err
 				}
-
-				replacement := fmt.Sprintf("[gosecret|%s|%s|%s|%s]",
-					parts[1],
-					base64.StdEncoding.EncodeToString(cipherText),
-					base64.StdEncoding.EncodeToString(iv),
-					keyname)
-
 				content = bytes.Replace(content, match[0], []byte(replacement), 1)
 			}
 
