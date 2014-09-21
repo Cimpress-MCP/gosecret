@@ -65,7 +65,7 @@ func decrypt(ciphertext []byte, key []byte, iv []byte, ad []byte) ([]byte, error
 
 func getBytesFromBase64File(filepath string) ([]byte, error) {
 	file, err := ioutil.ReadFile(filepath)
-	if (err != nil) {
+	if err != nil {
 		fmt.Println("Unable to read file", err)
 		return nil, err
 	}
@@ -150,7 +150,7 @@ func EncryptTags(content []byte, keyname, keyroot string, rotate bool) ([]byte, 
 					}
 
 					parts[2] = string(plaintext)
-			
+
 					replacement, err := encryptTag(parts, key, keyname)
 					if err != nil {
 						fmt.Println("Failed to encrypt tag", err)
