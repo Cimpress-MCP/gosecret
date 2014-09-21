@@ -63,12 +63,49 @@ func decrypt(ciphertext []byte, key []byte, iv []byte, ad []byte) ([]byte, error
 	return aesgcm.Open(nil, iv, ciphertext, ad)
 }
 
+func getBytesFromBase64File(filepath string) ([]byte, error) {
+	file, err := ioutil.ReadFile(filepath)
+	if (err != nil) {
+		fmt.Println("Unable to read file", err)
+		return nil, err
+	}
+
+	return base64.StdEncoding.DecodeString(string(file))
+}
+
+func decryptTag(tagParts []string, keyroot string) ([]byte, error) {
+	ct, err := base64.StdEncoding.DecodeString(tagParts[2])
+	if err != nil {
+		fmt.Println("Unable to decode ciphertext", tagParts[2], err)
+		return nil, err
+	}
+
+	iv, err := base64.StdEncoding.DecodeString(tagParts[3])
+	if err != nil {
+		fmt.Println("Unable to decode IV", err)
+		return nil, err
+	}
+
+	key, err := getBytesFromBase64File(filepath.Join(keyroot, tagParts[4]))
+	if err != nil {
+		fmt.Println("Unable to read file for decryption", err)
+		return nil, err
+	}
+
+	plaintext, err := decrypt(ct, key, iv, []byte(tagParts[1]))
+	if err != nil {
+		return nil, err
+	}
+
+	return plaintext, nil
+}
+
 // EncryptTags looks for any tagged data of the form [gosecret|authtext|plaintext] in the input content byte
 // array and replaces each with an encrypted gosecret tag.  Note that the input content must be valid UTF-8.
 // The second parameter is the name of the keyfile to use for encrypting all tags in the content, and the
 // third parameter is the 256-bit key itself.
 // EncryptTags returns a []byte with all unencrypted [gosecret] blocks replaced by encrypted gosecret tags.
-func EncryptTags(content []byte, keyname string, key []byte) ([]byte, error) {
+func EncryptTags(content []byte, keyname, keyroot string, rotate bool) ([]byte, error) {
 
 	if !utf8.Valid(content) {
 		return nil, errors.New("File is not valid UTF-8")
@@ -77,14 +114,43 @@ func EncryptTags(content []byte, keyname string, key []byte) ([]byte, error) {
 	match := gosecretRegex.Match(content)
 
 	if match {
+
+		keypath := filepath.Join(keyroot, keyname)
+		key, err := getBytesFromBase64File(keypath)
+		if err != nil {
+			fmt.Println("Unable to read encryption key")
+			return nil, err
+		}
+
 		matches := gosecretRegex.FindAllSubmatch(content, -1)
 		for _, match := range matches {
 			// The string we need is in the first capture group
 			matchStr := string(match[1])
 			parts := strings.Split(matchStr, "|")
 			if len(parts) > 3 {
-				// Block is already encrypted.  Skipping.
-				// TODO: Support optional reencryption.
+				if rotate {
+					plaintext, err := decryptTag(parts, keyroot)
+					if err != nil {
+						fmt.Println("Unable to decrypt ciphertext", parts[2], err)
+						return nil, err
+					}
+
+					iv := CreateIV()
+					cipherText, err := encrypt(plaintext, key, iv, []byte(parts[1]))
+
+					if err != nil {
+						return nil, err
+					}
+
+					replacement := fmt.Sprintf("[gosecret|%s|%s|%s|%s]",
+						parts[1],
+						base64.StdEncoding.EncodeToString(cipherText),
+						base64.StdEncoding.EncodeToString(iv),
+						keyname)
+
+					content = bytes.Replace(content, match[0], []byte(replacement), 1)
+				}
+
 			} else {
 				iv := CreateIV()
 				cipherText, err := encrypt([]byte(parts[2]), key, iv, []byte(parts[1]))
@@ -130,36 +196,13 @@ func DecryptTags(content []byte, keyroot string) ([]byte, error) {
 			if len(parts) < 5 {
 				// Block is not encrypted.  Skipping.
 			} else {
-				ct, err := base64.StdEncoding.DecodeString(parts[2])
+				plaintext, err := decryptTag(parts, keyroot)
 				if err != nil {
-					fmt.Println("Unable to decode ciphertext", parts[2], err)
+					fmt.Println("Unable to decrypt tag", err)
 					return nil, err
 				}
 
-				iv, err := base64.StdEncoding.DecodeString(parts[3])
-				if err != nil {
-					fmt.Println("Unable to decode IV", err)
-					return nil, err
-				}
-
-				keyfile, err := ioutil.ReadFile(filepath.Join(keyroot, parts[4]))
-				if err != nil {
-					fmt.Println("Unable to read file for decryption", err)
-					return nil, err
-				}
-
-				key, err := base64.StdEncoding.DecodeString(string(keyfile))
-				if err != nil {
-					fmt.Println("Unable to decode key", err)
-					return nil, err
-				}
-
-				plainText, err := decrypt(ct, key, iv, []byte(parts[1]))
-				if err != nil {
-					return nil, err
-				}
-
-				content = bytes.Replace(content, match[0], []byte(plainText), 1)
+				content = bytes.Replace(content, match[0], []byte(plaintext), 1)
 			}
 		}
 	}

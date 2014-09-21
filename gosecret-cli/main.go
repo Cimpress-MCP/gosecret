@@ -14,7 +14,8 @@ import (
 func main() {
 	var mode string
 	var keystore string
-	var keypath string
+	var keyname string
+	var rotate bool
 	flag.Usage = usage
 	flag.StringVar(
 		&mode, "mode", "encrypt",
@@ -23,8 +24,11 @@ func main() {
 		&keystore, "keystore", "/keys/",
 		"directory in which keys are stored")
 	flag.StringVar(
-		&keypath, "key", "",
-		"path to a key file to use for encryption")
+		&keyname, "key", "",
+		"name of a key file to use for encryption")
+	flag.BoolVar(
+		&rotate, "rotate", true,
+		"if encrypting, whether to rotate any already-encrypted tags to the new key")
 	flag.Parse()
 	if flag.NArg() != 1 {
 		flag.Usage()
@@ -34,7 +38,7 @@ func main() {
 	fileName := flag.Args()[0]
 
 	if (mode == "encrypt") {
-		if (keypath == "") {
+		if (keyname == "") {
 			fmt.Println("A -key must be provided for encryption")
 			return
 		}
@@ -45,21 +49,7 @@ func main() {
 			return
 		}
 
-		keyfile, err := ioutil.ReadFile(keypath)
-		if (err != nil) {
-			fmt.Println("Unable to read key file", err)
-			return
-		}
-
-		key, err := base64.StdEncoding.DecodeString(string(keyfile))
-		if (err != nil) {
-			fmt.Println("Unable to decode key", err)
-			return
-		}
-
-		keyname := filepath.Base(keypath)
-
-		fileContents, err := gosecret.EncryptTags(file, keyname, []byte(key))
+		fileContents, err := gosecret.EncryptTags(file, keystore, keyname, rotate)
 		if (err != nil) {
 			fmt.Println("encryption failed", err)
 			return
