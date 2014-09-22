@@ -111,18 +111,18 @@ func decryptTag(tagParts []string, keyroot string) ([]byte, error) {
 	return plaintext, nil
 }
 
-func encryptTag(tagParts []string, key []byte, keyname string) (string, error) {
+func encryptTag(tagParts []string, key []byte, keyname string) ([]byte, error) {
 	iv := CreateIV()
 	cipherText, err := encrypt([]byte(tagParts[2]), key, iv, []byte(tagParts[1]))
 	if err != nil {
-		return "", err
+		return []byte(""), err
 	}
 
-	return fmt.Sprintf("[gosecret|%s|%s|%s|%s]",
+	return []byte(fmt.Sprintf("[gosecret|%s|%s|%s|%s]",
 		tagParts[1],
 		base64.StdEncoding.EncodeToString(cipherText),
 		base64.StdEncoding.EncodeToString(iv),
-		keyname), nil
+		keyname)), nil
 }
 
 // EncryptTags looks for any tagged data of the form [gosecret|authtext|plaintext] in the input content byte
@@ -147,17 +147,18 @@ func EncryptTags(content []byte, keyname, keyroot string, rotate bool) ([]byte, 
 			return nil, err
 		}
 
-		matches := gosecretRegex.FindAllSubmatch(content, -1)
-		for _, match := range matches {
-			// The string we need is in the first capture group
-			matchStr := string(match[1])
-			parts := strings.Split(matchStr, "|")
+		content = gosecretRegex.ReplaceAllFunc(content, func(match []byte) []byte {
+			parts := strings.Split(string(match), "|")
+			lastPart := parts[len(parts)-1]
+			lastPart = lastPart[:len(lastPart)-1]
+			parts[len(parts)-1] = lastPart
+
 			if len(parts) > 3 {
 				if rotate {
 					plaintext, err := decryptTag(parts, keyroot)
 					if err != nil {
 						fmt.Println("Unable to decrypt ciphertext", parts[2], err)
-						return nil, err
+						return nil
 					}
 
 					parts[2] = string(plaintext)
@@ -165,21 +166,21 @@ func EncryptTags(content []byte, keyname, keyroot string, rotate bool) ([]byte, 
 					replacement, err := encryptTag(parts, key, keyname)
 					if err != nil {
 						fmt.Println("Failed to encrypt tag", err)
-						return nil, err
+						return nil
 					}
-					content = bytes.Replace(content, match[0], []byte(replacement), 1)
+					return replacement
+				} else {
+					return match
 				}
-
 			} else {
 				replacement, err := encryptTag(parts, key, keyname)
 				if err != nil {
 					fmt.Println("Failed to encrypt tag", err)
-					return nil, err
+					return nil
 				}
-				content = bytes.Replace(content, match[0], []byte(replacement), 1)
+				return replacement
 			}
-
-		}
+		})
 	}
 
 	return content, nil
@@ -200,6 +201,7 @@ func DecryptTags(content []byte, keyroot string) ([]byte, error) {
 	match := gosecretRegex.Match(content)
 
 	if match {
+
 		matches := gosecretRegex.FindAllSubmatch(content, -1)
 		for _, match := range matches {
 			// The string we need is in the first capture group
