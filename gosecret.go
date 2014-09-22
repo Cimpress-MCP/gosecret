@@ -147,10 +147,9 @@ func EncryptTags(content []byte, keyname, keyroot string, rotate bool) ([]byte, 
 		}
 
 		content = gosecretRegex.ReplaceAllFunc(content, func(match []byte) []byte {
-			parts := strings.Split(string(match), "|")
-			lastPart := parts[len(parts)-1]
-			lastPart = lastPart[:len(lastPart)-1]
-			parts[len(parts)-1] = lastPart
+			matchString := string(match)
+			matchString = matchString[:len(matchString)-1]
+			parts := strings.Split(string(matchString), "|")
 
 			if len(parts) > 3 {
 				if rotate {
@@ -198,10 +197,9 @@ func DecryptTags(content []byte, keyroot string) ([]byte, error) {
 	}
 
 	content = gosecretRegex.ReplaceAllFunc(content, func(match []byte) []byte {
-		parts := strings.Split(string(match), "|")
-		lastPart := parts[len(parts)-1]
-		lastPart = lastPart[:len(lastPart)-1]
-		parts[len(parts)-1] = lastPart
+		matchString := string(match)
+		matchString = matchString[:len(matchString)-1]
+		parts := strings.Split(matchString, "|")
 
 		if len(parts) < 5 {
 			// Block is not encrypted.  Noop.
