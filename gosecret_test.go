@@ -104,7 +104,10 @@ func TestKeyRotation(t *testing.T) {
 	}
 
 	// Create a new key.  Use it to encrypt.
-	err = ioutil.WriteFile(path.Join("test_keys", "test_key_1"), []byte(base64.StdEncoding.EncodeToString(CreateKey())), 0666)
+	rawKey := CreateKey()
+	key := make([]byte, base64.StdEncoding.EncodedLen(len(rawKey)))
+	base64.StdEncoding.Encode(key, rawKey)
+	err = ioutil.WriteFile(path.Join("test_keys", "test_key_1"), key, 0666)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -115,7 +118,10 @@ func TestKeyRotation(t *testing.T) {
 	}
 
 	// Create another new key.  Use it to re-encrypt.
-	err = ioutil.WriteFile(path.Join("test_keys", "test_key_2"), []byte(base64.StdEncoding.EncodeToString(CreateKey())), 0666)
+	rawKey = CreateKey()
+	key = make([]byte, base64.StdEncoding.EncodedLen(len(rawKey)))
+	base64.StdEncoding.Encode(key, rawKey)
+	err = ioutil.WriteFile(path.Join("test_keys", "test_key_2"), key, 0666)
 	if err != nil {
 		t.Fatal(err)
 	}
