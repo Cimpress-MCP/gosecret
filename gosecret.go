@@ -1,7 +1,6 @@
 package gosecret
 
 import (
-	"bytes"
 	"crypto/aes"
 	"crypto/cipher"
 	"crypto/rand"
@@ -198,28 +197,25 @@ func DecryptTags(content []byte, keyroot string) ([]byte, error) {
 		return nil, errors.New("File is not valid UTF-8")
 	}
 
-	match := gosecretRegex.Match(content)
+	content = gosecretRegex.ReplaceAllFunc(content, func(match []byte) []byte {
+		parts := strings.Split(string(match), "|")
+		lastPart := parts[len(parts)-1]
+		lastPart = lastPart[:len(lastPart)-1]
+		parts[len(parts)-1] = lastPart
 
-	if match {
-
-		matches := gosecretRegex.FindAllSubmatch(content, -1)
-		for _, match := range matches {
-			// The string we need is in the first capture group
-			matchStr := string(match[1])
-			parts := strings.Split(matchStr, "|")
-			if len(parts) < 5 {
-				// Block is not encrypted.  Skipping.
-			} else {
-				plaintext, err := decryptTag(parts, keyroot)
-				if err != nil {
-					fmt.Println("Unable to decrypt tag", err)
-					return nil, err
-				}
-
-				content = bytes.Replace(content, match[0], []byte(plaintext), 1)
+		if len(parts) < 5 {
+			// Block is not encrypted.  Noop.
+			return match
+		} else {
+			plaintext, err := decryptTag(parts, keyroot)
+			if err != nil {
+				fmt.Println("Unable to decrypt tag", err)
+				return nil
 			}
+
+			return plaintext
 		}
-	}
+	})
 
 	return content, nil
 }
