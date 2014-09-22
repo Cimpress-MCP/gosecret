@@ -63,6 +63,17 @@ func decrypt(ciphertext []byte, key []byte, iv []byte, ad []byte) ([]byte, error
 	return aesgcm.Open(nil, iv, ciphertext, ad)
 }
 
+func decodeBase64(input []byte) ([]byte, error) {
+	output := make([]byte, base64.StdEncoding.DecodedLen(len(input)))
+	l, err := base64.StdEncoding.Decode(output, input)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return output[:l], nil
+}
+
 func getBytesFromBase64File(filepath string) ([]byte, error) {
 	file, err := ioutil.ReadFile(filepath)
 	if err != nil {
@@ -70,7 +81,7 @@ func getBytesFromBase64File(filepath string) ([]byte, error) {
 		return nil, err
 	}
 
-	return base64.StdEncoding.DecodeString(string(file))
+	return decodeBase64(file)
 }
 
 func decryptTag(tagParts []string, keyroot string) ([]byte, error) {
