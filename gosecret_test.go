@@ -32,6 +32,34 @@ func TestEncrypt(t *testing.T) {
 	}
 }
 
+func TestNoopEncryptFile(t *testing.T) {
+
+	var original []byte = []byte("This string is not encrypted.  It should be returned without modification.")
+
+	notEncrypted, err := EncryptTags(original, "myteamkey-2014-09-19", "test_keys", false)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if !bytes.Equal(original, notEncrypted) {
+		t.Error("No-op encryption failed")
+	}
+}
+
+func TestNoopDecryptFile(t *testing.T) {
+
+	var original []byte = []byte("This string is not encrypted.  It should be returned without modification.")
+
+	notDecrypted, err := DecryptTags(original, "test_keys")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if !bytes.Equal(original, notDecrypted) {
+		t.Error("No-op decryption failed")
+	}
+}
+
 func TestEncryptFile(t *testing.T) {
 
 	plaintextFile, err := ioutil.ReadFile(path.Join("test_data", "config_plaintext.json"))
