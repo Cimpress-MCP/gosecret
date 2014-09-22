@@ -172,3 +172,37 @@ func TestDecryptFile(t *testing.T) {
 		t.Error("Decrypt failed")
 	}
 }
+
+func BenchmarkEncryptFile(b *testing.B) {
+
+	file, err := ioutil.ReadFile(path.Join("test_data", "config.json"))
+	if err != nil {
+		b.Fatal(err)
+	}
+
+	b.ResetTimer()
+
+	for i := 0; i < b.N; i++ {
+		_, err := EncryptTags(file, "myteamkey-2014-09-19", "test_keys", false)
+		if err != nil {
+			b.Fatal(err)
+		}
+	}
+}
+
+func BenchmarkDecryptFile(b *testing.B) {
+
+	file, err := ioutil.ReadFile(path.Join("test_data", "config_enc.json"))
+	if err != nil {
+		b.Fatal(err)
+	}
+
+	b.ResetTimer()
+
+	for i := 0; i < b.N; i++ {
+		_, err := DecryptTags(file, "test_keys")
+		if err != nil {
+			b.Fatal(err)
+		}
+	}
+}
