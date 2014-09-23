@@ -2,6 +2,10 @@
 // gosecret was written to work with tools such as https://github.com/ryanbreen/git2consul,
 // https://github.com/ryanbreen/fsconsul, and https://github.com/hashicorp/envconsul, providing a mechanism for storing
 // and moving secure secrets around the network and decrypting them on target systems via a previously installed key.
+//
+// gosecret is built on the assumption that only part of any given file should be encrypted: in most configuration files,
+// there are few fields that need to be encrypted and the rest can safely be left as plaintext.  gosecret can be used in a
+// mode where the entire file is a single encrypted tag, but you should examine whether there's a good reason to do so.
 package gosecret
 
 import (
