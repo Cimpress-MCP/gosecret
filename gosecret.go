@@ -22,11 +22,11 @@
 //	2. An auth data string. 
 //	3. The plaintext we wish to encrypt.
 //
-// Note that auth data can be any string (as long as it doesn't contain the pipe character, `|`).  This tag is hashed and
+// Note that auth data can be any string (as long as it doesn't contain the pipe character, '|').  This tag is hashed and
 // included as part of the ciphertext.  It's helpful if this tag has some semantic meaning describing the encrypted data.
 // 
-// With this tag in place, you can encrypt the file via `gosecret-cli`.  The result will yield something that looks like this,
-// assuming you encrypted it with a keyfile named `myteamkey-2014-09-19`: 
+// With this tag in place, you can encrypt the file via 'gosecret-cli'.  The result will yield something that looks like this,
+// assuming you encrypted it with a keyfile named 'myteamkey-2014-09-19': 
 //
 //	{ 'dbpassword': '[gosecret|my mongo db password|TtRotEctptR1LfA5tSn3kAtzjyWjAp+dMOHe6lc=|FJA7qz+dUdubwv9G|myteamkey-2014-09-19]' }
 //
@@ -38,7 +38,7 @@
 //	4. The initialization vector, in Base64
 //	5. The key name
 //
-// When this is decrypted by a system that contains key `myteamkey-2014-09-19`, the key and initialization vector are used to both
+// When this is decrypted by a system that contains key 'myteamkey-2014-09-19', the key and initialization vector are used to both
 // authenticate the auth data string and (if authentic) decrypt the ciphertext back to plaintext.  This will result in the
 // encrypted tag being replaced by the plaintext, returning us to our original form:
 //
