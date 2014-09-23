@@ -6,6 +6,47 @@
 // gosecret is built on the assumption that only part of any given file should be encrypted: in most configuration files,
 // there are few fields that need to be encrypted and the rest can safely be left as plaintext.  gosecret can be used in a
 // mode where the entire file is a single encrypted tag, but you should examine whether there's a good reason to do so.
+//
+// To signify that you wish a portion of a file to be encrypted, you need to denote that portion of the file with a tag. 
+// Imagine that your file contains this bit of JSON:
+//
+//	{ 'dbpassword': 'kadjf454nkklz' }
+//
+// To have gosecret encrypt just the password, you might create a tag like this:
+//
+//	{ 'dbpassword': '[gosecret|my mongo db password|kadjf454nkklz]' }
+//
+// The components of the tag are, in order:
+//
+// 	1. The gosecret header
+//	2. An auth data string.  Note that this can be any string (as long as it doesn't contain the pipe character, `|`).  
+// This tag hashed and included as part of the ciphertext.  It's helpful if this tag has some semantic meaning describing
+// the encrypted data.
+//	3. The plaintext we wish to encrypt.
+//
+//With this tag in place, you can encrypt the file via `gosecret-cli`.  The result will yield something that looks like this,
+// assuming you encrypted it with a keyfile named `myteamkey-2014-09-19`: 
+//
+//	{ 'dbpassword': '[gosecret|my mongo db password|TtRotEctptR1LfA5tSn3kAtzjyWjAp+dMOHe6lc=|FJA7qz+dUdubwv9G|myteamkey-2014-09-19]' }
+//
+// The components of the tag are, in order:
+//
+//	1. The gosecret header
+//	2. The auth data string 
+//	3. The ciphertext, in Base64
+//	4. The initialization vector, in Base64
+//	5. The key name
+//
+// When this is decrypted by a system that contains key `myteamkey-2014-09-19`, the key and initialization vector are used to both
+// authenticate the auth data string and (if authentic) decrypt the ciphertext back to plaintext.  This will result in the
+// encrypted tag being replaced by the plaintext, returning us to our original form:
+//
+//	{ 'dbpassword': 'kadjf454nkklz' }
+//
+// Note that the auth data string is not private data.  It is hashed and used as part of the ciphertext such that decryption will
+// fail if any of auth data, initialization vector, and key are incorrect for a specific piece of ciphertext.  This increases the
+// security of the encryption algorithm by obviating attacks that seek to learn about the key and initialization vector through
+// repeated decryption attempts.
 package gosecret
 
 import (
