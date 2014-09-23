@@ -69,7 +69,10 @@ func main() {
 		}
 		fmt.Printf(string(fileContents))
 	} else if (mode == "keygen") {
-		ioutil.WriteFile(fileName, []byte(base64.StdEncoding.EncodeToString(gosecret.CreateKey())), 0666)
+		key := gosecret.CreateKey()
+		encodedKey := make([]byte, base64.StdEncoding.EncodedLen(len(key)))
+		base64.StdEncoding.Encode(encodedKey, key)
+		ioutil.WriteFile(fileName, encodedKey, 0666)
 	} else {
 		fmt.Println("Unknown mode", mode)
 	}
