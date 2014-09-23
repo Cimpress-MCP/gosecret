@@ -32,7 +32,7 @@ To have gosecret encrypt just the password, you might create a tag like this:
 The components of the tag are, in order:
 
 1. The gosecret header
-2. An auth data string.  Note that this can be any string (as long as it doesn't contain the pipe character, `|`).  This tag hashed and included as part of the ciphertext.  It's helpful if this tag has some semantic meaning describing the encrypted data.
+2. An auth data string.  Note that this can be any string (as long as it doesn't contain the pipe character, `|`).  This tag is hashed and included as part of the ciphertext.  It's helpful if this tag has some semantic meaning describing the encrypted data.
 3. The plaintext we wish to encrypt.
 
 With this tag in place, you can encrypt the file via `gosecret-cli`.  The result will yield something that looks like this, assuming you encrypted it with a keyfile named `myteamkey-2014-09-19`: 
