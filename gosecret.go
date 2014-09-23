@@ -1,3 +1,7 @@
+// This repository provides the gosecret package for encrypting and decrypting all or part of a []byte using AES-256-GCM.
+// gosecret was written to work with tools such as https://github.com/ryanbreen/git2consul,
+// https://github.com/ryanbreen/fsconsul, and https://github.com/hashicorp/envconsul, providing a mechanism for storing
+// and moving secure secrets around the network and decrypting them on target systems via a previously installed key.
 package gosecret
 
 import (
