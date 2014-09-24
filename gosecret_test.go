@@ -12,7 +12,7 @@ import (
 func TestEncrypt(t *testing.T) {
 
 	key := CreateKey()
-	iv := CreateIV()
+	iv := createIV()
 
 	plaintext := []byte("Secret to encrypt.")
 	auth_data := []byte("scrt")

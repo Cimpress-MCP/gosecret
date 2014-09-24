@@ -85,7 +85,7 @@ func CreateKey() []byte {
 
 // Create a random initialization vector to use for encryption.  Each gosecret tag should have a different
 // initialization vector.
-func CreateIV() []byte {
+func createIV() []byte {
 	return createRandomBytes(12)
 }
 
@@ -167,7 +167,7 @@ func decryptTag(tagParts []string, keyroot string) ([]byte, error) {
 }
 
 func encryptTag(tagParts []string, key []byte, keyname string) ([]byte, error) {
-	iv := CreateIV()
+	iv := createIV()
 	cipherText, err := encrypt([]byte(tagParts[2]), key, iv, []byte(tagParts[1]))
 	if err != nil {
 		return []byte(""), err
