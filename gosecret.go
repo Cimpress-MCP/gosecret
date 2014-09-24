@@ -7,7 +7,7 @@
 // there are few fields that need to be encrypted and the rest can safely be left as plaintext.  gosecret can be used in a
 // mode where the entire file is a single encrypted tag, but you should examine whether there's a good reason to do so.
 //
-// To signify that you wish a portion of a file to be encrypted, you need to denote that portion of the file with a tag. 
+// To signify that you wish a portion of a file to be encrypted, you need to denote that portion of the file with a tag.
 // Imagine that your file contains this bit of JSON:
 //
 //	{ 'dbpassword': 'kadjf454nkklz' }
@@ -19,24 +19,31 @@
 // The components of the tag are, in order:
 //
 // 	1. The gosecret header
-//	2. An auth data string. 
+//	2. An auth data string.
 //	3. The plaintext we wish to encrypt.
 //
 // Note that auth data can be any string (as long as it doesn't contain the pipe character, '|').  This tag is hashed and
 // included as part of the ciphertext.  It's helpful if this tag has some semantic meaning describing the encrypted data.
-// 
+// Auth data string is not private data.  It is hashed and used as part of the ciphertext such that decryption will fail if
+// any of auth data, initialization vector, and key are incorrect for a specific piece of ciphertext.  This increases the
+// security of the encryption algorithm by obviating attacks that seek to learn about the key and initialization vector through
+// repeated decryption attempts.
+//
 // With this tag in place, you can encrypt the file via 'gosecret-cli'.  The result will yield something that looks like this,
-// assuming you encrypted it with a keyfile named 'myteamkey-2014-09-19': 
+// assuming you encrypted it with a keyfile named 'myteamkey-2014-09-19':
 //
 //	{ 'dbpassword': '[gosecret|my mongo db password|TtRotEctptR1LfA5tSn3kAtzjyWjAp+dMOHe6lc=|FJA7qz+dUdubwv9G|myteamkey-2014-09-19]' }
 //
 // The components of the tag are, in order:
 //
 //	1. The gosecret header
-//	2. The auth data string 
+//	2. The auth data string
 //	3. The ciphertext, in Base64
 //	4. The initialization vector, in Base64
 //	5. The key name
+//
+// A key may be used any number of times, but a new initialization vector should be created each time the key is used.  This is
+// handled for you automatically by gosecret.
 //
 // When this is decrypted by a system that contains key 'myteamkey-2014-09-19', the key and initialization vector are used to both
 // authenticate the auth data string and (if authentic) decrypt the ciphertext back to plaintext.  This will result in the
@@ -44,10 +51,8 @@
 //
 //	{ 'dbpassword': 'kadjf454nkklz' }
 //
-// Note that the auth data string is not private data.  It is hashed and used as part of the ciphertext such that decryption will
-// fail if any of auth data, initialization vector, and key are incorrect for a specific piece of ciphertext.  This increases the
-// security of the encryption algorithm by obviating attacks that seek to learn about the key and initialization vector through
-// repeated decryption attempts.
+// A file can contain any number of goscecret tags, or the entire file can be a gosecret tag.  It's up to you as the application
+// developer or system maintainer to decide what balance of security vs readability you desire.
 package gosecret
 
 import (
@@ -66,6 +71,7 @@ import (
 
 var gosecretRegex, _ = regexp.Compile("\\[(gosecret\\|[^\\]]*)\\]")
 
+// Create a random array of bytes.  This is used to create keys and IVs.
 func createRandomBytes(length int) []byte {
 	random_bytes := make([]byte, length)
 	rand.Read(random_bytes)
