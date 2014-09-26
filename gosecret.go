@@ -89,6 +89,8 @@ func createIV() []byte {
 	return createRandomBytes(12)
 }
 
+// Create an AES-256 GCM cipher for use by gosecret.  This is the only form of encryption supported by gosecret,
+// and barring any major flaws being discovered 256-bit keys should be adequate for quite some time.
 func createCipher(key []byte) (cipher.AEAD, error) {
 	aes, err := aes.NewCipher(key)
 	if err != nil {
@@ -101,7 +103,9 @@ func createCipher(key []byte) (cipher.AEAD, error) {
 	return aesgcm, nil
 }
 
-func encrypt(plaintext []byte, key []byte, iv []byte, ad []byte) ([]byte, error) {
+// Given an input plaintext []byte and key, initialization vector, and auth data []bytes, encrypt the plaintext
+// using an AES-GCM cipher and return a []byte containing the result.
+func encrypt(plaintext, key, iv, ad []byte) ([]byte, error) {
 	aesgcm, err := createCipher(key)
 	if err != nil {
 		return nil, err
@@ -109,7 +113,9 @@ func encrypt(plaintext []byte, key []byte, iv []byte, ad []byte) ([]byte, error)
 	return aesgcm.Seal(nil, iv, plaintext, ad), nil
 }
 
-func decrypt(ciphertext []byte, key []byte, iv []byte, ad []byte) ([]byte, error) {
+// Given an input ciphertext []byte and the key, initialization vector, and auth data []bytes used to encrypt it,
+// decrypt using an AES-GCM cipher and return a []byte containing the result.
+func decrypt(ciphertext, key, iv, ad []byte) ([]byte, error) {
 	aesgcm, err := createCipher(key)
 	if err != nil {
 		return nil, err
@@ -118,6 +124,7 @@ func decrypt(ciphertext []byte, key []byte, iv []byte, ad []byte) ([]byte, error
 	return aesgcm.Open(nil, iv, ciphertext, ad)
 }
 
+// Given an input []byte of Base64 encoded data, return a slice containing the decoded data.
 func decodeBase64(input []byte) ([]byte, error) {
 	output := make([]byte, base64.StdEncoding.DecodedLen(len(input)))
 	l, err := base64.StdEncoding.Decode(output, input)
@@ -129,6 +136,7 @@ func decodeBase64(input []byte) ([]byte, error) {
 	return output[:l], nil
 }
 
+// Given a file path known to contain Base64 encoded data, return a slive containing the decoded data.
 func getBytesFromBase64File(filepath string) ([]byte, error) {
 	file, err := ioutil.ReadFile(filepath)
 	if err != nil {
@@ -139,6 +147,8 @@ func getBytesFromBase64File(filepath string) ([]byte, error) {
 	return decodeBase64(file)
 }
 
+// Given an array of encrypted tag parts and a directory of keys, convert the encrypted gosecret tag into
+// a plaintext []byte.
 func decryptTag(tagParts []string, keyroot string) ([]byte, error) {
 	ct, err := base64.StdEncoding.DecodeString(tagParts[2])
 	if err != nil {
@@ -166,6 +176,8 @@ func decryptTag(tagParts []string, keyroot string) ([]byte, error) {
 	return plaintext, nil
 }
 
+// Given an array of unencrypted tag parts, a []byte containing the key, and a name for the key, generate
+// an encrypted gosecret tag.
 func encryptTag(tagParts []string, key []byte, keyname string) ([]byte, error) {
 	iv := createIV()
 	cipherText, err := encrypt([]byte(tagParts[2]), key, iv, []byte(tagParts[1]))
