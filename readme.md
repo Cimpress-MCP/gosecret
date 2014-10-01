@@ -75,6 +75,14 @@ The above command will encrypt any unencrypted tags in `path/to/plaintext_file` 
 
 The above command will decrypt any encrypted tags in `path/to/encrypted_file`, using the directory `path/to/keystore` as the home for any key named in an encrypted tag.  The decrypted file is printed to stdout.
 
+##### CI
+
+## CI
+
+Builds are automatically run by Travis on any push or pull request.
+
+![Travis Status](https://travis-ci.org/ryanbreen/gosecret.svg?branch=master)
+
 ##### License
 
 Apache 2.0
