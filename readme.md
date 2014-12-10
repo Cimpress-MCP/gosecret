@@ -79,7 +79,7 @@ The above command will decrypt any encrypted tags in `path/to/encrypted_file`, u
 
 Builds are automatically run by Travis on any push or pull request.
 
-![Travis Status](https://travis-ci.org/ryanbreen/gosecret.svg?branch=master)
+![Travis Status](https://travis-ci.org/Cimpress-MCP/gosecret.svg?branch=master)
 
 ##### License
 
