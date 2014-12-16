@@ -8,18 +8,23 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
-	"github.com/ryanbreen/gosecret"
+	"gosecret"
 )
 
 func main() {
 	var mode string
+	var value string
 	var keystore string
 	var keyname string
 	var rotate bool
+	var fileName string
 	flag.Usage = usage
 	flag.StringVar(
 		&mode, "mode", "encrypt",
 		"mode of operation, either keygen, encrypt, or decrypt; defaults to encrypt")
+	flag.StringVar(
+		&value, "value", "",
+		"value to encrypt/decrypt in lieu of file")
 	flag.StringVar(
 		&keystore, "keystore", "/keys/",
 		"directory in which keys are stored")
@@ -30,26 +35,22 @@ func main() {
 		&rotate, "rotate", true,
 		"if encrypting, whether to rotate any already-encrypted tags to the new key")
 	flag.Parse()
-	if flag.NArg() != 1 {
-		flag.Usage()
-		return
+	if value == "" {
+		if flag.NArg() != 1 {
+			flag.Usage()
+			return
+		} else {
+			fileName = flag.Args()[0]
+		}
 	}
-
-	fileName := flag.Args()[0]
-
 	if (mode == "encrypt") {
 		if (keyname == "") {
 			fmt.Println("A -key must be provided for encryption")
 			return
 		}
+		bytes := getBytes(value, fileName)
 
-		file, err := ioutil.ReadFile(fileName)
-		if (err != nil) {
-			fmt.Println("Unable to read file for encryption", err)
-			return
-		}
-
-		fileContents, err := gosecret.EncryptTags(file, keyname, keystore, rotate)
+		fileContents, err := gosecret.EncryptTags(bytes, keyname, keystore, rotate)
 		if (err != nil) {
 			fmt.Println("encryption failed", err)
 			return
@@ -57,12 +58,8 @@ func main() {
 
 		fmt.Printf(string(fileContents))
 	} else if (mode == "decrypt") {
-		file, err := ioutil.ReadFile(fileName)
-		if (err != nil) {
-			fmt.Println("err", err)
-		}
-
-		fileContents, err := gosecret.DecryptTags(file, keystore)
+		bytes := getBytes(value, fileName)
+		fileContents, err := gosecret.DecryptTags(bytes, keystore)
 		if (err != nil) {
 			fmt.Println("err", err)
 			return
@@ -78,6 +75,18 @@ func main() {
 	}
 
 	return
+}
+
+func getBytes(value string, fileName string) []byte {
+	if value != "" {
+		return []byte(value)
+	}
+	file, err := ioutil.ReadFile(fileName)
+	if (err != nil) {
+		fmt.Println("Unable to read file for encryption", err)
+		return nil
+	}
+	return file
 }
 
 func usage() {
