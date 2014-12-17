@@ -8,7 +8,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
-	"github.com/ryanbreen/gosecret"
+	"github.com/cimpress-mcp/gosecret"
 )
 
 func main() {
