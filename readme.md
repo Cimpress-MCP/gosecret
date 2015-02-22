@@ -81,6 +81,12 @@ Builds are automatically run by Travis on any push or pull request.
 
 ![Travis Status](https://travis-ci.org/Cimpress-MCP/gosecret.svg?branch=master)
 
+## Builds
+
+Tagged builds are automatically published to bintray for OS X, Linux, and Windows.
+
+[ ![Download](https://api.bintray.com/packages/cimpress-mcp/Go/gosecret/images/download.svg) ](https://bintray.com/cimpress-mcp/Go/gosecret/_latestVersion#files)
+
 ##### License
 
 Apache 2.0
