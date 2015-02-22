@@ -1,4 +1,4 @@
-package gosecret
+package api
 
 import (
 	"bytes"
@@ -62,22 +62,22 @@ func TestNoopDecryptFile(t *testing.T) {
 
 func TestEncryptFile(t *testing.T) {
 
-	plaintextFile, err := ioutil.ReadFile(path.Join("test_data", "config_plaintext.json"))
+	plaintextFile, err := ioutil.ReadFile(path.Join("../test_data", "config_plaintext.json"))
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	file, err := ioutil.ReadFile(path.Join("test_data", "config.json"))
+	file, err := ioutil.ReadFile(path.Join("../test_data", "config.json"))
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	encrypted, err := EncryptTags(file, "myteamkey-2014-09-19", "test_keys", false)
+	encrypted, err := EncryptTags(file, "myteamkey-2014-09-19", "../test_keys", false)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	decrypted, err := DecryptTags(encrypted, "test_keys")
+	decrypted, err := DecryptTags(encrypted, "../test_keys")
 
 	if err != nil {
 		t.Fatal(err)
@@ -93,12 +93,12 @@ func TestKeyRotation(t *testing.T) {
 	os.Remove(path.Join("test_keys", "test_key_1"))
 	os.Remove(path.Join("test_keys", "test_key_2"))
 
-	plaintextFile, err := ioutil.ReadFile(path.Join("test_data", "config_plaintext.json"))
+	plaintextFile, err := ioutil.ReadFile(path.Join("../test_data", "config_plaintext.json"))
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	file, err := ioutil.ReadFile(path.Join("test_data", "config.json"))
+	file, err := ioutil.ReadFile(path.Join("../test_data", "config.json"))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -107,12 +107,12 @@ func TestKeyRotation(t *testing.T) {
 	rawKey := CreateKey()
 	key := make([]byte, base64.StdEncoding.EncodedLen(len(rawKey)))
 	base64.StdEncoding.Encode(key, rawKey)
-	err = ioutil.WriteFile(path.Join("test_keys", "test_key_1"), key, 0666)
+	err = ioutil.WriteFile(path.Join("../test_keys", "test_key_1"), key, 0666)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	encrypted, err := EncryptTags(file, "test_key_1", "test_keys", false)
+	encrypted, err := EncryptTags(file, "test_key_1", "../test_keys", false)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -121,29 +121,29 @@ func TestKeyRotation(t *testing.T) {
 	rawKey = CreateKey()
 	key = make([]byte, base64.StdEncoding.EncodedLen(len(rawKey)))
 	base64.StdEncoding.Encode(key, rawKey)
-	err = ioutil.WriteFile(path.Join("test_keys", "test_key_2"), key, 0666)
+	err = ioutil.WriteFile(path.Join("../test_keys", "test_key_2"), key, 0666)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	encrypted, err = EncryptTags(file, "test_key_2", "test_keys", true)
+	encrypted, err = EncryptTags(file, "test_key_2", "../test_keys", true)
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	// Delete the first key.
-	err = os.Remove(path.Join("test_keys", "test_key_1"))
+	err = os.Remove(path.Join("../test_keys", "test_key_1"))
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	// Decrypt the file
-	decrypted, err := DecryptTags(encrypted, "test_keys")
+	decrypted, err := DecryptTags(encrypted, "../test_keys")
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	os.Remove(path.Join("test_keys", "test_key_2"))
+	os.Remove(path.Join("../test_keys", "test_key_2"))
 
 	if !bytes.Equal(plaintextFile, decrypted) {
 		t.Error("Encrypt / Decrypt round-trip failed")
@@ -152,17 +152,17 @@ func TestKeyRotation(t *testing.T) {
 
 func TestDecryptFile(t *testing.T) {
 
-	plaintextFile, err := ioutil.ReadFile(path.Join("test_data", "config_plaintext.json"))
+	plaintextFile, err := ioutil.ReadFile(path.Join("../test_data", "config_plaintext.json"))
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	file, err := ioutil.ReadFile(path.Join("test_data", "config_enc.json"))
+	file, err := ioutil.ReadFile(path.Join("../test_data", "config_enc.json"))
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	fileContents, err := DecryptTags(file, "test_keys")
+	fileContents, err := DecryptTags(file, "../test_keys")
 
 	if err != nil {
 		t.Fatal(err)
@@ -175,7 +175,7 @@ func TestDecryptFile(t *testing.T) {
 
 func BenchmarkEncryptFile(b *testing.B) {
 
-	file, err := ioutil.ReadFile(path.Join("test_data", "config.json"))
+	file, err := ioutil.ReadFile(path.Join("../test_data", "config.json"))
 	if err != nil {
 		b.Fatal(err)
 	}
@@ -183,7 +183,7 @@ func BenchmarkEncryptFile(b *testing.B) {
 	b.ResetTimer()
 
 	for i := 0; i < b.N; i++ {
-		_, err := EncryptTags(file, "myteamkey-2014-09-19", "test_keys", false)
+		_, err := EncryptTags(file, "myteamkey-2014-09-19", "../test_keys", false)
 		if err != nil {
 			b.Fatal(err)
 		}
@@ -192,7 +192,7 @@ func BenchmarkEncryptFile(b *testing.B) {
 
 func BenchmarkDecryptFile(b *testing.B) {
 
-	file, err := ioutil.ReadFile(path.Join("test_data", "config_enc.json"))
+	file, err := ioutil.ReadFile(path.Join("../test_data", "config_enc.json"))
 	if err != nil {
 		b.Fatal(err)
 	}
@@ -200,7 +200,7 @@ func BenchmarkDecryptFile(b *testing.B) {
 	b.ResetTimer()
 
 	for i := 0; i < b.N; i++ {
-		_, err := DecryptTags(file, "test_keys")
+		_, err := DecryptTags(file, "../test_keys")
 		if err != nil {
 			b.Fatal(err)
 		}

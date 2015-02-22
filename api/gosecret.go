@@ -53,7 +53,7 @@
 //
 // A file can contain any number of goscecret tags, or the entire file can be a gosecret tag.  It's up to you as the application
 // developer or system maintainer to decide what balance of security vs readability you desire.
-package gosecret
+package api
 
 import (
 	"crypto/aes"

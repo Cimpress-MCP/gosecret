@@ -8,10 +8,14 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
-	"github.com/cimpress-mcp/gosecret"
+	gosecret "github.com/cimpress-mcp/gosecret/api"
 )
 
 func main() {
+	os.Exit(realMain())
+}
+
+func realMain() int {
 	var mode string
 	var value string
 	var keystore string
@@ -38,7 +42,7 @@ func main() {
 	if value == "" {
 		if flag.NArg() != 1 {
 			flag.Usage()
-			return
+			return 1
 		} else {
 			fileName = flag.Args()[0]
 		}
@@ -46,14 +50,14 @@ func main() {
 	if (mode == "encrypt") {
 		if (keyname == "") {
 			fmt.Println("A -key must be provided for encryption")
-			return
+			return 2
 		}
 		bytes := getBytes(value, fileName)
 
 		fileContents, err := gosecret.EncryptTags(bytes, keyname, keystore, rotate)
 		if (err != nil) {
 			fmt.Println("encryption failed", err)
-			return
+			return 4
 		}
 
 		fmt.Printf(string(fileContents))
@@ -62,7 +66,7 @@ func main() {
 		fileContents, err := gosecret.DecryptTags(bytes, keystore)
 		if (err != nil) {
 			fmt.Println("err", err)
-			return
+			return 8
 		}
 		fmt.Printf(string(fileContents))
 	} else if (mode == "keygen") {
@@ -72,9 +76,10 @@ func main() {
 		ioutil.WriteFile(fileName, encodedKey, 0666)
 	} else {
 		fmt.Println("Unknown mode", mode)
+		return 16
 	}
 
-	return
+	return 0
 }
 
 func getBytes(value string, fileName string) []byte {
