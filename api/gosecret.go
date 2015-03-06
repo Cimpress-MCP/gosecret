@@ -136,7 +136,7 @@ func decodeBase64(input []byte) ([]byte, error) {
 	return output[:l], nil
 }
 
-// Given a file path known to contain Base64 encoded data, return a slive containing the decoded data.
+// Given a file path known to contain Base64 encoded data, return a slice containing the decoded data.
 func getBytesFromBase64File(filepath string) ([]byte, error) {
 	file, err := ioutil.ReadFile(filepath)
 	if err != nil {

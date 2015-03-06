@@ -60,6 +60,34 @@ func TestNoopDecryptFile(t *testing.T) {
 	}
 }
 
+func TestEncryptSpecialCharacterFile(t *testing.T) {
+
+	plaintextFile, err := ioutil.ReadFile(path.Join("../test_data", "config_special_characters_plaintext.json"))
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	file, err := ioutil.ReadFile(path.Join("../test_data", "config_special_characters.json"))
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	encrypted, err := EncryptTags(file, "myteamkey-2014-09-19", "../test_keys", false)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	decrypted, err := DecryptTags(encrypted, "../test_keys")
+
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if !bytes.Equal(plaintextFile, decrypted) {
+		t.Error("Encrypt / Decrypt round-trip failed")
+	}
+}
+
 func TestEncryptFile(t *testing.T) {
 
 	plaintextFile, err := ioutil.ReadFile(path.Join("../test_data", "config_plaintext.json"))
