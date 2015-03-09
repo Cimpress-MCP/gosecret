@@ -10,7 +10,7 @@ The full documentation is available on [godoc](http://godoc.org/github.com/ryanb
 
 ##### Installation
 
-Install the `gosecret` package with `go install` from the main directory, and install the CLI with `go install` from the `gosecret-cli` directory.
+`go install` will install both the `gosecret` CLI to `$GOPATH/bin` and `github.com/cimpress-mcp/gosecret/api` to `$GOPATH/pkg`.
 
 ##### Caveats
 
