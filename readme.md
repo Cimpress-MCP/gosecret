@@ -6,7 +6,7 @@ For details on the algorithm, [the Wikipedia article on Galois/Counter Mode](htt
 
 ##### Documentation
 
-The full documentation is available on [godoc](http://godoc.org/github.com/cimpress-mcp/gosecret/api).
+The full documentation is available on [godoc](http://godoc.org/github.com/Cimpress-MCP/gosecret/api).
 
 ##### Installation
 
