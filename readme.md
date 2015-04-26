@@ -65,7 +65,7 @@ The above command will generate a new AES-256 key and store it, Base64 encoded, 
 
 ###### encrypt
 
-`gosecret -mode=encrypt -key=path/to/keyfile path/to/plaintext_file`
+`gosecret -mode=encrypt -keystore=path/to/keystore -key=name_of_keyfile path/to/plaintext_file`
 
 The above command will encrypt any unencrypted tags in `path/to/plaintext_file` using the key stored at `path/to/keyfile`.  The encrypted file is printed to stdout.
 
