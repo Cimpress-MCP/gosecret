@@ -69,6 +69,69 @@ import (
 	"unicode/utf8"
 )
 
+type EncryptionTag struct {
+	AuthData  []byte
+	Plaintext []byte
+	KeyName   string
+}
+
+type DecryptionTag struct {
+	AuthData   []byte
+	CipherText []byte
+	InitVector []byte
+	KeyName    string
+}
+
+//Encrypt the tag, returns the cypher text
+func (et *EncryptionTag) EncryptTag(keystore string, iv []byte) ([]byte, error) {
+	keypath := filepath.Join(keystore, et.KeyName)
+	key, err := getBytesFromBase64File(keypath)
+
+	aes, err := aes.NewCipher(key)
+	if err != nil {
+		return nil, err
+	}
+	aesgcm, err := cipher.NewGCM(aes)
+	if err != nil {
+		return nil, err
+	}
+
+	return aesgcm.Seal(nil, iv, et.Plaintext, et.AuthData), nil
+}
+
+func ParseEncrytionTag(keystore string, s ...string) (DecryptionTag, error) {
+	// If the function does not contain correct number of arguements
+	if len(s) != 3 {
+		return DecryptionTag{}, fmt.Errorf("expected 3 arguments, got %d", len(s))
+	}
+
+	//Create EncryptionTag object
+	et := EncryptionTag{
+		[]byte(s[0]),
+		[]byte(s[1]),
+		s[2],
+	}
+
+	iv := CreateIV()
+	cipherText, err := et.EncryptTag(keystore, iv)
+	if err != nil {
+		return DecryptionTag{}, err
+	}
+
+	dt := DecryptionTag {
+		[]byte(s[0]),
+		cipherText,
+		iv,
+		s[2],
+	}
+
+	return dt, nil
+}
+
+//////////////////////////////////////////////
+// Old functions and methods for handling tags
+//////////////////////////////////////////////
+
 var gosecretRegex, _ = regexp.Compile("\\[(gosecret\\|[^\\]]*)\\]")
 
 // Create a random array of bytes.  This is used to create keys and IVs.

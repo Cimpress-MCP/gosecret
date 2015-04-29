@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"encoding/base64"
 	"flag"
 	"fmt"
@@ -8,6 +9,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"text/template"
 	gosecret "github.com/cimpress-mcp/gosecret/api"
 )
 
@@ -48,19 +50,43 @@ func realMain() int {
 		}
 	}
 	if (mode == "encrypt") {
-		if (keyname == "") {
-			fmt.Println("A -key must be provided for encryption")
-			return 2
-		}
-		bytes := getBytes(value, fileName)
+		// if (keyname == "") {
+		// 	fmt.Println("A -key must be provided for encryption")
+		// 	return 2
+		// }
+		// bytes := getBytes(value, fileName)
+		//
+		// fileContents, err := gosecret.EncryptTags(bytes, keyname, keystore, rotate)
+		// if (err != nil) {
+		// 	fmt.Println("encryption failed", err)
+		// 	return 4
+		// }
+		//
+		// fmt.Println(string(fileContents))
 
-		fileContents, err := gosecret.EncryptTags(bytes, keyname, keystore, rotate)
-		if (err != nil) {
-			fmt.Println("encryption failed", err)
-			return 4
+		// Create a template, add the function map, and parse the text.
+		funcs := template.FuncMap {
+	    // Template functions
+	    "goEncrypt": goEncryptFunc(keystore),
+	    //"goDecrypt": goDecryptFunc,
+	  }
+
+		tmpl, err := template.New("titleTest").Funcs(funcs).Parse(value)
+		if err != nil {
+			fmt.Println("Could not parse template", err)
+			return 99
 		}
 
-		fmt.Printf(string(fileContents))
+		// Run the template to verify the output.
+		buff := new(bytes.Buffer)
+		err = tmpl.Execute(buff, nil)
+		if err != nil {
+			fmt.Println("Could not execute template", err)
+			return 98
+		}
+
+		fmt.Printf(string(buff.Bytes()))
+
 	} else if (mode == "decrypt") {
 		bytes := getBytes(value, fileName)
 		fileContents, err := gosecret.DecryptTags(bytes, keystore)

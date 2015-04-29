@@ -28,13 +28,12 @@ func NewTemplate(path string) (*Template, error) {
   return template, nil
 }
 
-//Execute missing
-func (t *Template) Execute() ([]byte, error) {
+func (t *Template) Execute(keystore string) ([]byte, error) {
   name := filepath.Base(t.Path)
-  funcs := template.FuncMap{
+  funcs := template.FuncMap {
     // Template functions
-    "goEncrypt": goEncryptFunc,
-    "goDecrypt": goDecryptFunc,
+    "goEncrypt": goEncryptFunc(keystore),
+    //"goDecrypt": goDecryptFunc,
   }
 
   tmpl, err := template.New(name).Funcs(funcs).Parse(t.contents)
