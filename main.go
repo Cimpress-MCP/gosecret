@@ -88,13 +88,36 @@ func realMain() int {
 		fmt.Printf(string(buff.Bytes()))
 
 	} else if (mode == "decrypt") {
-		bytes := getBytes(value, fileName)
-		fileContents, err := gosecret.DecryptTags(bytes, keystore)
-		if (err != nil) {
-			fmt.Println("err", err)
-			return 8
+		// bytes := getBytes(value, fileName)
+		// fileContents, err := gosecret.DecryptTags(bytes, keystore)
+		// if (err != nil) {
+		// 	fmt.Println("err", err)
+		// 	return 8
+		// }
+		// fmt.Printf(string(fileContents))
+
+		funcs := template.FuncMap {
+	    // Template functions
+	    //"goEncrypt": goEncryptFunc(keystore),
+	    "goDecrypt": goDecryptFunc(keystore),
+	  }
+
+		tmpl, err := template.New("titleTest").Funcs(funcs).Parse(value)
+		if err != nil {
+			fmt.Println("Could not parse template", err)
+			return 99
 		}
-		fmt.Printf(string(fileContents))
+
+		// Run the template to verify the output.
+		buff := new(bytes.Buffer)
+		err = tmpl.Execute(buff, nil)
+		if err != nil {
+			fmt.Println("Could not execute template", err)
+			return 98
+		}
+
+		fmt.Printf(string(buff.Bytes()))
+
 	} else if (mode == "keygen") {
 		key := gosecret.CreateKey()
 		encodedKey := make([]byte, base64.StdEncoding.EncodedLen(len(key)))

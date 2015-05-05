@@ -128,6 +128,56 @@ func ParseEncrytionTag(keystore string, s ...string) (DecryptionTag, error) {
 	return dt, nil
 }
 
+func (dt *DecryptionTag) DecryptTag(keystore string) ([]byte, error) {
+
+	keypath, err := getBytesFromBase64File(filepath.Join(keystore, dt.KeyName)) //filepath.Join(keystore, dt.KeyName)
+	if err != nil {
+		fmt.Println("Unable to read file for decryption", err)
+		return nil, err
+	}
+
+
+	aesgcm, err := createCipher(keypath)
+	if err != nil {
+		return nil, err
+	}
+
+	return aesgcm.Open(nil, dt.InitVector, dt.CipherText, dt.AuthData)
+}
+
+//Should return []byte instead of string
+func ParseDecryptionTag(keystore string, s ...string) (string, error) {
+	if len(s) != 4 {
+		return "", fmt.Errorf("expected 4 arguements, go %d", len(s))
+	}
+
+	ct, err := base64.StdEncoding.DecodeString(s[1])
+	if err != nil {
+		fmt.Println("Unable to decode ciphertext", err)
+		return "", err
+	}
+
+	iv, err := base64.StdEncoding.DecodeString(s[2])
+	if err != nil {
+		fmt.Println("Unable to decode IV", err)
+		return "", err
+	}
+
+	dt := DecryptionTag{
+		[]byte(s[0]),
+		ct,
+		iv,
+		s[3],
+	}
+
+	plaintext, err := dt.DecryptTag(keystore)
+	if err != nil {
+		return "", err
+	}
+
+	return string(plaintext), nil
+}
+
 //////////////////////////////////////////////
 // Old functions and methods for handling tags
 //////////////////////////////////////////////
