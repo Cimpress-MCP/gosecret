@@ -13,7 +13,9 @@ For details on the algorithm, [the Wikipedia article on Galois/Counter Mode](htt
 Installation
 ------------
 
-`go install` will install both the `gosecret` CLI to `$GOPATH/bin` and `github.com/cimpress-mcp/gosecret/api` to `$GOPATH/pkg`
+Pre-compiled builds can be directly download, extracted, and executed.
+
+Optionally, gosecret can be built and installed from source by cloning the repository and executing `go install`, which will install both the `gosecret` CLI to `$GOPATH/bin` and `github.com/cimpress-mcp/gosecret/api` to `$GOPATH/pkg`.
 
 Documentation
 -------------
@@ -88,7 +90,7 @@ Using the native template system
 
 Gosecret also supports using native template tags. The tag format is different from the one previously used by gosecret
 
-Encrypting and decrypting keys require appropiate tag. In the case of encryption, gosecret turn all `goEncrypt` tags to `goDecrypt` tags. Running gosecret in decryption mode will turn `goDecrypt` tags into plaintext data.
+Encrypting and decrypting keys require appropriate tags. In the case of encryption, gosecret will turn all `goEncrypt` tags to `goDecrypt` tags. Running gosecret in decryption mode will turn `goDecrypt` tags into plaintext data.
 
 #### The goEncrypt tag
 
@@ -100,7 +102,9 @@ Encrypting and decrypting keys require appropiate tag. In the case of encryption
 
 ## Notes
 
-Builds are automatically run by Travis on any push or pull request.
+**Deprecation notice:** Old templating system is deprecated and will be removed in future versions of gosecret.
+
+Builds are automatically ran by Travis on any push or pull request.
 
 Tagged builds are automatically published to bintray for OS X, Linux, and Windows.
 
