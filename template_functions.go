@@ -1,8 +1,8 @@
 package main
 
 import (
-	"fmt"
 	"encoding/base64"
+	"fmt"
 	gosecret "github.com/cimpress-mcp/gosecret/api"
 )
 
