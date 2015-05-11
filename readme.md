@@ -97,12 +97,8 @@ Encrypting and decrypting keys require appropriate tags. In the case of encrypti
 `{{goEncrypt "Auth data" "Plaintext" "Key name"}}`
 
 To encrypt:
-
-`./gosecret -mode encrypt -keystore ./test_keys -key myteamkey-2014-09-19 ./test_data/template/config.json`
-
-Output:
-
 ```
+$ ./gosecret -mode encrypt -keystore ./test_keys -key myteamkey-2014-09-19 ./test_data/template/config.json
 {
   "dbpassword" : "{{goDecrypt "MySql Password" "LcKxOXJa2qx1Riof0tLKzXvKW93ukxgOOBhspoc=" "fpY9FRvJ+8Z7ko6M" "myteamkey-2014-09-19"}}"
 }
@@ -113,12 +109,8 @@ Output:
 `{{goDecrypt "Auth data" "Cipher text" "Initialization vector" "Key name"}}`
 
 To decrypt:
-
-`./gosecret -mode decrypt -keystore ./test_keys ./test_data/template/encrypted.json`
-
-Output:
-
 ```
+$ ./gosecret -mode decrypt -keystore ./test_keys ./test_data/template/encrypted.json
 {
   "dbpassword" : "kadjf454nkklz"  
 }
