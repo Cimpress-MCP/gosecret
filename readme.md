@@ -2,9 +2,12 @@ gosecret
 ========
 [![Build Status](https://travis-ci.org/Cimpress-MCP/gosecret.svg?branch=master)][travis]
 [![Download](https://api.bintray.com/packages/cimpress-mcp/Go/gosecret/images/download.svg)][bintray]
+[![Go Documentation](http://img.shields.io/badge/go-documentation-blue.svg)][godocs]
 
 [travis]: http://travis-ci.org/Cimpress-MCP/gosecret
 [bintray]: https://bintray.com/cimpress-mcp/Go/gosecret/_latestVersion#files
+[godocs]: (http://godoc.org/github.com/Cimpress-MCP/gosecret/api)
+
 
 This repository provides the `gosecret` package for encrypting and decrypting all or part of a `[]byte` using AES-256-GCM.  gosecret was written to work with tools such as [git2consul](https://github.com/Cimpress-MCP/git2consul), [fsconsul](https://github.com/Cimpress-MCP/fsconsul), and [envconsul](https://github.com/hashicorp/envconsul), providing a mechanism for storing and moving secure secrets around the network and decrypting them on target systems via a previously installed key.
 
@@ -13,15 +16,12 @@ For details on the algorithm, [the Wikipedia article on Galois/Counter Mode](htt
 Installation
 ------------
 
-Pre-compiled builds can be directly download, extracted, and executed.
+Pre-compiled builds can be directly downloaded on Bintray, extracted, and executed.
 
 Optionally, gosecret can be built and installed from source by cloning the repository and executing `go install`, which will install both the `gosecret` CLI to `$GOPATH/bin` and `github.com/cimpress-mcp/gosecret/api` to `$GOPATH/pkg`.
 
 Documentation
 -------------
-
-The full documentation is available on [godoc](http://godoc.org/github.com/Cimpress-MCP/gosecret/api)
-
 ### Caveats
 
 * Security in gosecret is predicated upon the security of the target machines.  gosecret uses symmetric encryption, so any user with access to the key can decrypt all secrets encrypted with that key.

@@ -64,6 +64,8 @@ func realMain() int {
 		//
 		// fmt.Println(string(fileContents))
 
+		data := string(getBytes(value, fileName))
+
 		// Create a template, add the function map, and parse the text.
 		funcs := template.FuncMap {
 	    // Template functions
@@ -71,7 +73,7 @@ func realMain() int {
 	    //"goDecrypt": goDecryptFunc,
 	  }
 
-		tmpl, err := template.New("titleTest").Funcs(funcs).Parse(value)
+		tmpl, err := template.New("encryption").Funcs(funcs).Parse(data)
 		if err != nil {
 			fmt.Println("Could not parse template", err)
 			return 99
@@ -96,13 +98,15 @@ func realMain() int {
 		// }
 		// fmt.Printf(string(fileContents))
 
+		data := string(getBytes(value, fileName))
+
 		funcs := template.FuncMap {
 	    // Template functions
 	    //"goEncrypt": goEncryptFunc(keystore),
 	    "goDecrypt": goDecryptFunc(keystore),
 	  }
 
-		tmpl, err := template.New("titleTest").Funcs(funcs).Parse(value)
+		tmpl, err := template.New("decryption").Funcs(funcs).Parse(data)
 		if err != nil {
 			fmt.Println("Could not parse template", err)
 			return 99
