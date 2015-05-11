@@ -62,10 +62,6 @@ func realMain() int {
 			return 4
 		}
 
-		// fmt.Println(string(fileContents))
-
-		// data := string(getBytes(value, fileName))
-
 		data := string(fileContents)
 
 		// Create a template, add the function map, and parse the text.
@@ -97,9 +93,6 @@ func realMain() int {
 			fmt.Println("err", err)
 			return 8
 		}
-		// fmt.Printf(string(fileContents))
-
-		// data := string(getBytes(value, fileName))
 
 		data := string(fileContents)
 
