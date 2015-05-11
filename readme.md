@@ -90,15 +90,39 @@ Using the native template system
 
 Gosecret also supports using native template tags. The tag format is different from the one previously used by gosecret
 
-Encrypting and decrypting keys require appropriate tags. In the case of encryption, gosecret will turn all `goEncrypt` tags to `goDecrypt` tags. Running gosecret in decryption mode will turn `goDecrypt` tags into plaintext data.
+Encrypting and decrypting keys require appropriate tags. In the case of encryption, gosecret will turn all `goEncrypt` tags to `goDecrypt` tags. Running gosecret in decryption mode will turn `goDecrypt` tags into plaintext data. Please note that quotes will need to be escaped if they are part of the plaintext.
 
 #### The goEncrypt tag
 
 `{{goEncrypt "Auth data" "Plaintext" "Key name"}}`
 
+To encrypt:
+
+`./gosecret -mode encrypt -keystore ./test_keys -key myteamkey-2014-09-19 ./test_data/template/config.json`
+
+Output:
+
+```
+{
+  "dbpassword" : "{{goDecrypt "MySql Password" "LcKxOXJa2qx1Riof0tLKzXvKW93ukxgOOBhspoc=" "fpY9FRvJ+8Z7ko6M" "myteamkey-2014-09-19"}}"
+}
+```
+
 #### The goDecrypt tag
 
 `{{goDecrypt "Auth data" "Cipher text" "Initialization vector" "Key name"}}`
+
+To decrypt:
+
+`./gosecret -mode decrypt -keystore ./test_keys ./test_data/template/encrypted.json`
+
+Output:
+
+```
+{
+  "dbpassword" : "kadjf454nkklz"  
+}
+```
 
 ## Notes
 
