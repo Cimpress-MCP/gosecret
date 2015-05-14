@@ -65,6 +65,8 @@ func realMain() int {
 		data := string(fileContents)
 
 		// Create a template, add the function map, and parse the text.
+		// FuncMap maps the goEncrypt (and goDecrypt below) names to functions so that the
+		// template recognizes and knows what to do when it encounters such tags during parsing
 		funcs := template.FuncMap{
 			// Template functions
 			"goEncrypt": goEncryptFunc(keystore),
