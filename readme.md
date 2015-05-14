@@ -11,16 +11,55 @@ gosecret
 
 This repository provides the `gosecret` package for encrypting and decrypting all or part of a `[]byte` using AES-256-GCM.  gosecret was written to work with tools such as [git2consul](https://github.com/Cimpress-MCP/git2consul), [fsconsul](https://github.com/Cimpress-MCP/fsconsul), and [envconsul](https://github.com/hashicorp/envconsul), providing a mechanism for storing and moving secure secrets around the network and decrypting them on target systems via a previously installed key.
 
-For details on the algorithm, [the Wikipedia article on Galois/Counter Mode](https://en.wikipedia.org/wiki/Galois/Counter_Mode) is helpful.
+Details on the Galois/Counter Mode algorithm can be found [here](https://en.wikipedia.org/wiki/Galois/Counter_Mode).
 
 Installation
 ------------
 
-Pre-compiled builds can be directly downloaded on Bintray, extracted, and executed.
+Pre-compiled builds can be directly downloaded from Bintray.
 
 Optionally, gosecret can be built and installed from source by cloning the repository and executing `go install`, which will install both the `gosecret` CLI to `$GOPATH/bin` and `github.com/cimpress-mcp/gosecret/api` to `$GOPATH/pkg`.
 
-Documentation
+Using the native template system
+--------------------------------
+
+Gosecret supports using native template tags. The tag format is different from the one previously used by gosecret, which is currently deprecated and will be removed in the next major release.
+
+Encrypting and decrypting keys require appropriate tags. In the case of encryption, gosecret will turn all `goEncrypt` tags to `goDecrypt` tags. Running gosecret in decryption mode will turn `goDecrypt` tags into plaintext data. Please note that quotes will need to be escaped if they are part of the plaintext.
+
+#### The goEncrypt tag
+
+`{{goEncrypt "Auth data" "Plaintext" "Key name"}}`
+
+To encrypt:
+```
+$ ./gosecret -mode encrypt -keystore ./test_keys -key myteamkey-2014-09-19 ./test_data/template/config.json
+{
+  "dbpassword" : "{{goDecrypt "MySql Password" "LcKxOXJa2qx1Riof0tLKzXvKW93ukxgOOBhspoc=" "fpY9FRvJ+8Z7ko6M" "myteamkey-2014-09-19"}}"
+}
+```
+
+#### The goDecrypt tag
+
+`{{goDecrypt "Auth data" "Cipher text" "Initialization vector" "Key name"}}`
+
+To decrypt:
+```
+$ ./gosecret -mode decrypt -keystore ./test_keys ./test_data/template/encrypted.json
+{
+  "dbpassword" : "kadjf454nkklz"  
+}
+```
+
+#### Key generation
+
+To generate a AES-256 key:
+
+```
+gosecret -mode keygen ./test_keys/myteamkey-2014-09-19
+```
+
+Documentation (deprecated)
 -------------
 ### Caveats
 
@@ -69,52 +108,21 @@ Note that the auth data string is not private data.  It is hashed and used as pa
 
 #### keygen
 
-`gosecret-cli -mode=keygen path/to/keyfile`
+`gosecret -mode=keygen path/to/keyfile`
 
 The above command will generate a new AES-256 key and store it, Base64 encoded, in `path/to/keyfile`
 
 #### encrypt
 
-`gosecret-cli -mode=encrypt -key=path/to/keyfile path/to/plaintext_file`
+`gosecret -mode=encrypt -keystore=path/to/keystore -key=name_of_keyfile path/to/plaintext_file`
 
 The above command will encrypt any unencrypted tags in `path/to/plaintext_file` using the key stored at `path/to/keyfile`.  The encrypted file is printed to stdout.
 
 #### decrypt
 
-`gosecret-cli -mode=decrypt -keystore=path/to/keystore path/to/encrypted_file`
+`gosecret -mode=decrypt -keystore=path/to/keystore path/to/encrypted_file`
 
 The above command will decrypt any encrypted tags in `path/to/encrypted_file`, using the directory `path/to/keystore` as the home for any key named in an encrypted tag.  The decrypted file is printed to stdout.
-
-Using the native template system
---------------------------------
-
-Gosecret also supports using native template tags. The tag format is different from the one previously used by gosecret
-
-Encrypting and decrypting keys require appropriate tags. In the case of encryption, gosecret will turn all `goEncrypt` tags to `goDecrypt` tags. Running gosecret in decryption mode will turn `goDecrypt` tags into plaintext data. Please note that quotes will need to be escaped if they are part of the plaintext.
-
-#### The goEncrypt tag
-
-`{{goEncrypt "Auth data" "Plaintext" "Key name"}}`
-
-To encrypt:
-```
-$ ./gosecret -mode encrypt -keystore ./test_keys -key myteamkey-2014-09-19 ./test_data/template/config.json
-{
-  "dbpassword" : "{{goDecrypt "MySql Password" "LcKxOXJa2qx1Riof0tLKzXvKW93ukxgOOBhspoc=" "fpY9FRvJ+8Z7ko6M" "myteamkey-2014-09-19"}}"
-}
-```
-
-#### The goDecrypt tag
-
-`{{goDecrypt "Auth data" "Cipher text" "Initialization vector" "Key name"}}`
-
-To decrypt:
-```
-$ ./gosecret -mode decrypt -keystore ./test_keys ./test_data/template/encrypted.json
-{
-  "dbpassword" : "kadjf454nkklz"  
-}
-```
 
 ## Notes
 

@@ -112,7 +112,7 @@ func ParseEncrytionTag(keystore string, s ...string) (DecryptionTag, error) {
 		s[2],
 	}
 
-	iv := CreateIV()
+	iv := createIV()
 	cipherText, err := et.EncryptTag(keystore, iv)
 	if err != nil {
 		return DecryptionTag{}, err
@@ -145,7 +145,6 @@ func (dt *DecryptionTag) DecryptTag(keystore string) ([]byte, error) {
 	return aesgcm.Open(nil, dt.InitVector, dt.CipherText, dt.AuthData)
 }
 
-//Should return []byte instead of string
 func ParseDecryptionTag(keystore string, s ...string) (string, error) {
 	if len(s) != 4 {
 		return "", fmt.Errorf("expected 4 arguements, go %d", len(s))
@@ -198,7 +197,7 @@ func CreateKey() []byte {
 
 // Create a random initialization vector to use for encryption.  Each gosecret tag should have a different
 // initialization vector.
-func CreateIV() []byte {
+func createIV() []byte {
 	return createRandomBytes(12)
 }
 
@@ -218,7 +217,7 @@ func createCipher(key []byte) (cipher.AEAD, error) {
 
 // Given an input plaintext []byte and key, initialization vector, and auth data []bytes, encrypt the plaintext
 // using an AES-GCM cipher and return a []byte containing the result.
-func Encrypt(plaintext, key, iv, ad []byte) ([]byte, error) {
+func encrypt(plaintext, key, iv, ad []byte) ([]byte, error) {
 	aesgcm, err := createCipher(key)
 	if err != nil {
 		return nil, err
@@ -228,7 +227,7 @@ func Encrypt(plaintext, key, iv, ad []byte) ([]byte, error) {
 
 // Given an input ciphertext []byte and the key, initialization vector, and auth data []bytes used to encrypt it,
 // decrypt using an AES-GCM cipher and return a []byte containing the result.
-func Decrypt(ciphertext, key, iv, ad []byte) ([]byte, error) {
+func decrypt(ciphertext, key, iv, ad []byte) ([]byte, error) {
 	aesgcm, err := createCipher(key)
 	if err != nil {
 		return nil, err
@@ -281,7 +280,7 @@ func decryptTag(tagParts []string, keyroot string) ([]byte, error) {
 		return nil, err
 	}
 
-	plaintext, err := Decrypt(ct, key, iv, []byte(tagParts[1]))
+	plaintext, err := decrypt(ct, key, iv, []byte(tagParts[1]))
 	if err != nil {
 		return nil, err
 	}
@@ -292,8 +291,8 @@ func decryptTag(tagParts []string, keyroot string) ([]byte, error) {
 // Given an array of unencrypted tag parts, a []byte containing the key, and a name for the key, generate
 // an encrypted gosecret tag.
 func encryptTag(tagParts []string, key []byte, keyname string) ([]byte, error) {
-	iv := CreateIV()
-	cipherText, err := Encrypt([]byte(tagParts[2]), key, iv, []byte(tagParts[1]))
+	iv := createIV()
+	cipherText, err := encrypt([]byte(tagParts[2]), key, iv, []byte(tagParts[1]))
 	if err != nil {
 		return []byte(""), err
 	}

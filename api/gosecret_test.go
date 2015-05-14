@@ -9,7 +9,7 @@ import (
 	"testing"
 )
 
-func TestEncrypTag(t *testing.T) {
+func TestEncryptTag(t *testing.T) {
 
 	et := EncryptionTag{
 		[]byte("MySql Password"),
@@ -18,7 +18,7 @@ func TestEncrypTag(t *testing.T) {
 	}
 
 	keystore := path.Clean("../test_keys")
-	iv := CreateIV()
+	iv := createIV()
 
 	cipherText, err := et.EncryptTag(keystore, iv)
 	if err != nil {
@@ -64,20 +64,20 @@ func TestParsingTag(t *testing.T) {
 // End of new tests
 ///////////////////
 
-func TestEncrypt(t *testing.T) {
+func Testencrypt(t *testing.T) {
 
 	key := CreateKey()
-	iv := CreateIV()
+	iv := createIV()
 
 	plaintext := []byte("Secret to encrypt.")
 	auth_data := []byte("scrt")
 
-	cipher_text, err := Encrypt(plaintext, key, iv, auth_data)
+	cipher_text, err := encrypt(plaintext, key, iv, auth_data)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	plaintext2, err := Decrypt(cipher_text, key, iv, auth_data)
+	plaintext2, err := decrypt(cipher_text, key, iv, auth_data)
 	if err != nil {
 		t.Fatal(err)
 	}
