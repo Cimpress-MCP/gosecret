@@ -14,8 +14,7 @@ branches:
 #   - git config --global user.name "Ryan Breen"
 
 script:
-  - go generate ./...
-  #- go test ./...
+  - make test
 
 # after_success:
 #   - test ! $TRAVIS_TAG && exit
