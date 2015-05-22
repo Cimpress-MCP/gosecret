@@ -14,7 +14,8 @@ before_script:
   - git config --global user.name "Ryan Breen"
 
 script:
-  - go test
+  - go generate ./...
+  - go test ./...
 
 after_success:
   - test ! $TRAVIS_TAG && exit
