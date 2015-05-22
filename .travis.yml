@@ -1,21 +1,31 @@
-language: go
 sudo: false
+
+language: go
+
 go:
-- 1.4
+  - 1.4
+
+branches:
+  only:
+    - master
+
 before_script:
-- git config --global user.email "ryan@ryanbreen.com"
-- git config --global user.name "Ryan Breen"
+  - git config --global user.email "ryan@ryanbreen.com"
+  - git config --global user.name "Ryan Breen"
+
 script:
-- go test
+  - go test
+
 after_success:
-- test ! $TRAVIS_TAG && exit
-- go get -x github.com/mitchellh/gox
-- gox -build-toolchain -osarch="linux/amd64 darwin/amd64 windows/amd64"
-- gox -output="build/{{.OS}}/{{.Arch}}/{{.Dir}}" -osarch="linux/amd64 darwin/amd64 windows/amd64"
-- curl -T build/darwin/amd64/gosecret -uryanbreen:$BINTRAY_KEY https://api.bintray.com/content/cimpress-mcp/Go/gosecret/$TRAVIS_TAG/$TRAVIS_TAG/darwin-amd64/gosecret
-- curl -T build/linux/amd64/gosecret -uryanbreen:$BINTRAY_KEY https://api.bintray.com/content/cimpress-mcp/Go/gosecret/$TRAVIS_TAG/$TRAVIS_TAG/linux-amd64/gosecret
-- curl -T build/windows/amd64/gosecret.exe -uryanbreen:$BINTRAY_KEY https://api.bintray.com/content/cimpress-mcp/Go/gosecret/$TRAVIS_TAG/$TRAVIS_TAG/windows-amd64/gosecret.exe
-- curl -XPOST -uryanbreen:$BINTRAY_KEY https://api.bintray.com/content/cimpress-mcp/Go/gosecret/$TRAVIS_TAG/publish
+  - test ! $TRAVIS_TAG && exit
+  - go get -x github.com/mitchellh/gox
+  - gox -build-toolchain -osarch="linux/amd64 darwin/amd64 windows/amd64"
+  - gox -output="build/{{.OS}}/{{.Arch}}/{{.Dir}}" -osarch="linux/amd64 darwin/amd64 windows/amd64"
+  - curl -T build/darwin/amd64/gosecret -uryanbreen:$BINTRAY_KEY https://api.bintray.com/content/cimpress-mcp/Go/gosecret/$TRAVIS_TAG/$TRAVIS_TAG/darwin-amd64/gosecret
+  - curl -T build/linux/amd64/gosecret -uryanbreen:$BINTRAY_KEY https://api.bintray.com/content/cimpress-mcp/Go/gosecret/$TRAVIS_TAG/$TRAVIS_TAG/linux-amd64/gosecret
+  - curl -T build/windows/amd64/gosecret.exe -uryanbreen:$BINTRAY_KEY https://api.bintray.com/content/cimpress-mcp/Go/gosecret/$TRAVIS_TAG/$TRAVIS_TAG/windows-amd64/gosecret.exe
+  - curl -XPOST -uryanbreen:$BINTRAY_KEY https://api.bintray.com/content/cimpress-mcp/Go/gosecret/$TRAVIS_TAG/publish
+
 env:
   global:
-  - secure: "mHRbR1ckSMWsAxJ90QqrOQZomDPLD6Xj+8EPNFV/jBUSPwqheh2SX7Db0oLwok/OCAYy1lIFA3NrWQ+EodJUaY08f/+HZWQHR4IckNXFMqeDhl1uVX2cv2TRmsy9MJ70CwiM2mfiD2kyEWEsx8H2t4TRIsQ6qil64TNiYrnrqQM="
+    - secure: "mHRbR1ckSMWsAxJ90QqrOQZomDPLD6Xj+8EPNFV/jBUSPwqheh2SX7Db0oLwok/OCAYy1lIFA3NrWQ+EodJUaY08f/+HZWQHR4IckNXFMqeDhl1uVX2cv2TRmsy9MJ70CwiM2mfiD2kyEWEsx8H2t4TRIsQ6qil64TNiYrnrqQM="
