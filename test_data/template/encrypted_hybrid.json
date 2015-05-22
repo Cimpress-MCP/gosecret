@@ -1,0 +1,4 @@
+{
+  "dbpassword" : "{{goDecrypt "MySql Password" "rOHlwyawalfWnQuS07BtzqdenseHQCyOKvqdu5Q=" "Pfu/CMkW6veDjEuq" "myteamkey-2014-09-19"}}",
+  "dbpassword2": "[gosecret|MySql Password 2|LVwaZfqOLKZQMKpZ85DTYlJDBA6dl8eL7Gcw0xY=|3tfbw3Lg8JHg3dVN|myteamkey-2014-09-19]"
+}

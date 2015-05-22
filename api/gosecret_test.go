@@ -9,7 +9,62 @@ import (
 	"testing"
 )
 
-func TestEncrypt(t *testing.T) {
+func TestEncryptTag(t *testing.T) {
+
+	et := EncryptionTag{
+		[]byte("MySql Password"),
+		[]byte( "kadjf454nkklz"),
+		"myteamkey-2014-09-19",
+	}
+
+	keystore := path.Clean("../test_keys")
+	iv := createIV()
+
+	cipherText, err := et.EncryptTag(keystore, iv)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	dt := DecryptionTag {
+		[]byte("MySql Password"),
+		cipherText,
+		iv,
+		"myteamkey-2014-09-19",
+	}
+
+	plaintext, err := dt.DecryptTag(keystore)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if !bytes.Equal(plaintext, []byte("kadjf454nkklz")) {
+		t.Error("Decrypt failed")
+	}
+}
+
+func TestParsingTag(t *testing.T) {
+	keystore := path.Clean("../test_keys")
+
+	dt, err := ParseEncrytionTag(keystore, "MySql Password", "kadjf454nkklz", "myteamkey-2014-09-19")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	plaintext, err := ParseDecryptionTag(keystore, string(dt.AuthData), base64.StdEncoding.EncodeToString(dt.CipherText), base64.StdEncoding.EncodeToString(dt.InitVector), dt.KeyName)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if !(plaintext == "kadjf454nkklz") {
+		t.Error("Decrypt failed")
+	}
+}
+
+///////////////////
+// End of new tests
+///////////////////
+
+func Testencrypt(t *testing.T) {
 
 	key := CreateKey()
 	iv := createIV()

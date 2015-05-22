@@ -1,0 +1,4 @@
+{
+  "dbpassword" : "{{goEncrypt "MySql Password" "kadjf454nkklz" "myteamkey-2014-09-19" }}",
+  "dbpassword2": "[gosecret|MySql Password 2|kadjf454nkklz]"
+}

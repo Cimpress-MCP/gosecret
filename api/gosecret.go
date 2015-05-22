@@ -69,6 +69,118 @@ import (
 	"unicode/utf8"
 )
 
+type EncryptionTag struct {
+	AuthData  []byte
+	Plaintext []byte
+	KeyName   string
+}
+
+type DecryptionTag struct {
+	AuthData   []byte
+	CipherText []byte
+	InitVector []byte
+	KeyName    string
+}
+
+//Encrypt the tag, returns the cypher text
+func (et *EncryptionTag) EncryptTag(keystore string, iv []byte) ([]byte, error) {
+	keypath := filepath.Join(keystore, et.KeyName)
+	key, err := getBytesFromBase64File(keypath)
+
+	aes, err := aes.NewCipher(key)
+	if err != nil {
+		return nil, err
+	}
+	aesgcm, err := cipher.NewGCM(aes)
+	if err != nil {
+		return nil, err
+	}
+
+	return aesgcm.Seal(nil, iv, et.Plaintext, et.AuthData), nil
+}
+
+func ParseEncrytionTag(keystore string, s ...string) (DecryptionTag, error) {
+	// If the function does not contain correct number of arguments
+	if len(s) != 3 {
+		return DecryptionTag{}, fmt.Errorf("expected 3 arguments, got %d", len(s))
+	}
+
+	//Create EncryptionTag object
+	et := EncryptionTag{
+		[]byte(s[0]),
+		[]byte(s[1]),
+		s[2],
+	}
+
+	iv := createIV()
+	cipherText, err := et.EncryptTag(keystore, iv)
+	if err != nil {
+		return DecryptionTag{}, err
+	}
+
+	dt := DecryptionTag {
+		[]byte(s[0]),
+		cipherText,
+		iv,
+		s[2],
+	}
+
+	return dt, nil
+}
+
+func (dt *DecryptionTag) DecryptTag(keystore string) ([]byte, error) {
+
+	keypath, err := getBytesFromBase64File(filepath.Join(keystore, dt.KeyName))
+	if err != nil {
+		fmt.Println("Unable to read file for decryption", err)
+		return nil, err
+	}
+
+
+	aesgcm, err := createCipher(keypath)
+	if err != nil {
+		return nil, err
+	}
+
+	return aesgcm.Open(nil, dt.InitVector, dt.CipherText, dt.AuthData)
+}
+
+func ParseDecryptionTag(keystore string, s ...string) (string, error) {
+	if len(s) != 4 {
+		return "", fmt.Errorf("expected 4 arguments, go %d", len(s))
+	}
+
+	ct, err := base64.StdEncoding.DecodeString(s[1])
+	if err != nil {
+		fmt.Println("Unable to decode ciphertext", err)
+		return "", err
+	}
+
+	iv, err := base64.StdEncoding.DecodeString(s[2])
+	if err != nil {
+		fmt.Println("Unable to decode IV", err)
+		return "", err
+	}
+
+	dt := DecryptionTag{
+		[]byte(s[0]),
+		ct,
+		iv,
+		s[3],
+	}
+
+	plaintext, err := dt.DecryptTag(keystore)
+	if err != nil {
+		return "", err
+	}
+
+	return string(plaintext), nil
+}
+
+//////////////////////////////////////////////
+// Old functions and methods for handling tags
+//////////////////////////////////////////////
+
 var gosecretRegex, _ = regexp.Compile("\\[(gosecret\\|[^\\]]*)\\]")
 
 // Create a random array of bytes.  This is used to create keys and IVs.

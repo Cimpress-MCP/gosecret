@@ -1,14 +1,16 @@
 package main
 
 import (
+	"bytes"
 	"encoding/base64"
 	"flag"
 	"fmt"
+	gosecret "github.com/cimpress-mcp/gosecret/api"
 	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strings"
-	gosecret "github.com/cimpress-mcp/gosecret/api"
+	"text/template"
 )
 
 func main() {
@@ -47,29 +49,77 @@ func realMain() int {
 			fileName = flag.Args()[0]
 		}
 	}
-	if (mode == "encrypt") {
+	if mode == "encrypt" {
 		if (keyname == "") {
 			fmt.Println("A -key must be provided for encryption")
 			return 2
 		}
-		bytes := getBytes(value, fileName)
+		rawBytes := getBytes(value, fileName)
 
-		fileContents, err := gosecret.EncryptTags(bytes, keyname, keystore, rotate)
+		fileContents, err := gosecret.EncryptTags(rawBytes, keyname, keystore, rotate)
 		if (err != nil) {
 			fmt.Println("encryption failed", err)
 			return 4
 		}
 
-		fmt.Printf(string(fileContents))
-	} else if (mode == "decrypt") {
-		bytes := getBytes(value, fileName)
-		fileContents, err := gosecret.DecryptTags(bytes, keystore)
+		data := string(fileContents)
+
+		// Create a template, add the function map, and parse the text.
+		// FuncMap maps the goEncrypt (and goDecrypt below) names to functions so that the
+		// template recognizes and knows what to do when it encounters such tags during parsing
+		funcs := template.FuncMap{
+			// Template functions
+			"goEncrypt": goEncryptFunc(keystore),
+		}
+
+		tmpl, err := template.New("encryption").Funcs(funcs).Parse(data)
+		if err != nil {
+			fmt.Println("Could not parse template", err)
+			return 99
+		}
+
+		// Run the template to verify the output.
+		buff := new(bytes.Buffer)
+		err = tmpl.Execute(buff, nil)
+		if err != nil {
+			fmt.Println("Could not execute template", err)
+			return 98
+		}
+
+		fmt.Printf(string(buff.Bytes()))
+
+	} else if mode == "decrypt" {
+		rawBytes := getBytes(value, fileName)
+		fileContents, err := gosecret.DecryptTags(rawBytes, keystore)
 		if (err != nil) {
 			fmt.Println("err", err)
 			return 8
 		}
-		fmt.Printf(string(fileContents))
-	} else if (mode == "keygen") {
+
+		data := string(fileContents)
+
+		funcs := template.FuncMap{
+			// Template functions
+			"goDecrypt": goDecryptFunc(keystore),
+		}
+
+		tmpl, err := template.New("decryption").Funcs(funcs).Parse(data)
+		if err != nil {
+			fmt.Println("Could not parse template", err)
+			return 99
+		}
+
+		// Run the template to verify the output.
+		buff := new(bytes.Buffer)
+		err = tmpl.Execute(buff, nil)
+		if err != nil {
+			fmt.Println("Could not execute template", err)
+			return 98
+		}
+
+		fmt.Printf(string(buff.Bytes()))
+
+	} else if mode == "keygen" {
 		key := gosecret.CreateKey()
 		encodedKey := make([]byte, base64.StdEncoding.EncodedLen(len(key)))
 		base64.StdEncoding.Encode(encodedKey, key)
@@ -87,7 +137,7 @@ func getBytes(value string, fileName string) []byte {
 		return []byte(value)
 	}
 	file, err := ioutil.ReadFile(fileName)
-	if (err != nil) {
+	if err != nil {
 		fmt.Println("Unable to read file for encryption", err)
 		return nil
 	}
