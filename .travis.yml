@@ -5,25 +5,26 @@ language: go
 go:
   - 1.4
 
-# before_script:
-#   - git config --global user.email "ryan@ryanbreen.com"
-#   - git config --global user.name "Ryan Breen"
+branches:
+  only:
+    - master
 
 install:
-  - go get -v -t ./...
+  - go get -v github.com/cimpress-mcp/gosecret/...
 
 script:
-  - go test ./...
+  - go test github.com/cimpress-mcp/gosecret
+  - go test github.com/cimpress-mcp/gosecret/api
 
-# after_success:
-#   - test ! $TRAVIS_TAG && exit
-#   - go get -x github.com/mitchellh/gox
-#   - gox -build-toolchain -osarch="linux/amd64 darwin/amd64 windows/amd64"
-#   - gox -output="build/{{.OS}}/{{.Arch}}/{{.Dir}}" -osarch="linux/amd64 darwin/amd64 windows/amd64"
-#   - curl -T build/darwin/amd64/gosecret -uryanbreen:$BINTRAY_KEY https://api.bintray.com/content/cimpress-mcp/Go/gosecret/$TRAVIS_TAG/$TRAVIS_TAG/darwin-amd64/gosecret
-#   - curl -T build/linux/amd64/gosecret -uryanbreen:$BINTRAY_KEY https://api.bintray.com/content/cimpress-mcp/Go/gosecret/$TRAVIS_TAG/$TRAVIS_TAG/linux-amd64/gosecret
-#   - curl -T build/windows/amd64/gosecret.exe -uryanbreen:$BINTRAY_KEY https://api.bintray.com/content/cimpress-mcp/Go/gosecret/$TRAVIS_TAG/$TRAVIS_TAG/windows-amd64/gosecret.exe
-#   - curl -XPOST -uryanbreen:$BINTRAY_KEY https://api.bintray.com/content/cimpress-mcp/Go/gosecret/$TRAVIS_TAG/publish
+after_success:
+  - test ! $TRAVIS_TAG && exit
+  - go get -x github.com/mitchellh/gox
+  - gox -build-toolchain -osarch="linux/amd64 darwin/amd64 windows/amd64"
+  - gox -output="build/{{.OS}}/{{.Arch}}/{{.Dir}}" -osarch="linux/amd64 darwin/amd64 windows/amd64"
+  - curl -T build/darwin/amd64/gosecret -uryanbreen:$BINTRAY_KEY https://api.bintray.com/content/cimpress-mcp/Go/gosecret/$TRAVIS_TAG/$TRAVIS_TAG/darwin-amd64/gosecret
+  - curl -T build/linux/amd64/gosecret -uryanbreen:$BINTRAY_KEY https://api.bintray.com/content/cimpress-mcp/Go/gosecret/$TRAVIS_TAG/$TRAVIS_TAG/linux-amd64/gosecret
+  - curl -T build/windows/amd64/gosecret.exe -uryanbreen:$BINTRAY_KEY https://api.bintray.com/content/cimpress-mcp/Go/gosecret/$TRAVIS_TAG/$TRAVIS_TAG/windows-amd64/gosecret.exe
+  - curl -XPOST -uryanbreen:$BINTRAY_KEY https://api.bintray.com/content/cimpress-mcp/Go/gosecret/$TRAVIS_TAG/publish
 
 env:
   global:
