@@ -5,16 +5,15 @@ language: go
 go:
   - 1.4
 
-branches:
-  only:
-    - master
-
 # before_script:
 #   - git config --global user.email "ryan@ryanbreen.com"
 #   - git config --global user.name "Ryan Breen"
 
+install:
+  - go get -v -t ./...
+
 script:
-  - make test
+  - go test ./...
 
 # after_success:
 #   - test ! $TRAVIS_TAG && exit

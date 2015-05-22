@@ -1,8 +1,6 @@
 default: test
 
 test: generate
-	go list ./...
-	echo ${GOPATH}
 	go test ./...
 
 generate:
