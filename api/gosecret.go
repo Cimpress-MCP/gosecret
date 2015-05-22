@@ -100,7 +100,7 @@ func (et *EncryptionTag) EncryptTag(keystore string, iv []byte) ([]byte, error) 
 }
 
 func ParseEncrytionTag(keystore string, s ...string) (DecryptionTag, error) {
-	// If the function does not contain correct number of arguements
+	// If the function does not contain correct number of arguments
 	if len(s) != 3 {
 		return DecryptionTag{}, fmt.Errorf("expected 3 arguments, got %d", len(s))
 	}
@@ -130,7 +130,7 @@ func ParseEncrytionTag(keystore string, s ...string) (DecryptionTag, error) {
 
 func (dt *DecryptionTag) DecryptTag(keystore string) ([]byte, error) {
 
-	keypath, err := getBytesFromBase64File(filepath.Join(keystore, dt.KeyName)) //filepath.Join(keystore, dt.KeyName)
+	keypath, err := getBytesFromBase64File(filepath.Join(keystore, dt.KeyName))
 	if err != nil {
 		fmt.Println("Unable to read file for decryption", err)
 		return nil, err
@@ -147,7 +147,7 @@ func (dt *DecryptionTag) DecryptTag(keystore string) ([]byte, error) {
 
 func ParseDecryptionTag(keystore string, s ...string) (string, error) {
 	if len(s) != 4 {
-		return "", fmt.Errorf("expected 4 arguements, go %d", len(s))
+		return "", fmt.Errorf("expected 4 arguments, go %d", len(s))
 	}
 
 	ct, err := base64.StdEncoding.DecodeString(s[1])
