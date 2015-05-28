@@ -8,6 +8,7 @@ go:
 branches:
   only:
     - master
+    - /^v\d+.\d+.\d+$/
 
 install:
   - go get -v github.com/cimpress-mcp/gosecret/...
