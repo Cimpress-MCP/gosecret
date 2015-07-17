@@ -16,7 +16,7 @@ Details on the Galois/Counter Mode algorithm can be found [here](https://en.wiki
 Installation
 ------------
 
-Pre-compiled builds can be directly downloaded from [Bintray](https://bintray.com/cimpress-mcp/Go/gosecret/_latestVersion#files).
+Pre-compiled builds can be directly downloaded from Bintray [here](https://bintray.com/cimpress-mcp/Go/gosecret/_latestVersion#files).
 
 Optionally, gosecret can be built and installed from source by cloning the repository and executing `go install`, which will install both the `gosecret` CLI to `$GOPATH/bin` and `github.com/cimpress-mcp/gosecret/api` to `$GOPATH/pkg`.
 
